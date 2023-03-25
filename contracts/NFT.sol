@@ -4,6 +4,7 @@ pragma solidity ^0.8.0;
 import "./ERC721Enumerable.sol";
 import "./Ownable.sol";
 
+// The NFT contract now has access to the other 2. Also need to import above...
 contract NFT is ERC721Enumerable, Ownable {
     using Strings for uint256;
 
@@ -13,6 +14,7 @@ contract NFT is ERC721Enumerable, Ownable {
     uint256 public maxSupply;
     uint256 public allowMintingOn;
 
+    // Is 'amount' the Eth value that they need to input???
     event Mint(uint256 amount, address minter);
     event Withdraw(uint256 amount, address owner);
 
@@ -30,12 +32,13 @@ contract NFT is ERC721Enumerable, Ownable {
         baseURI = _baseURI;
     }
 
+    // payable allows the contract to receive ether.
     function mint(uint256 _mintAmount) public payable {
         // Only allow minting after specified time
         require(block.timestamp >= allowMintingOn);
         // Must mint at least 1 token
         require(_mintAmount > 0);
-        // Require enough payment
+        // Require enough payment - msg.value = balance of minter's wallet??
         require(msg.value >= cost * _mintAmount);
 
         uint256 supply = totalSupply();
@@ -43,7 +46,8 @@ contract NFT is ERC721Enumerable, Ownable {
         // Do not let them mint more tokens than available
         require(supply + _mintAmount <= maxSupply);
 
-        // Create tokens
+        // Create tokens - this loop helps people mint multiple NFTs.
+        // _mintAmount is the number the buyer requests to buy.
         for(uint256 i = 1; i <= _mintAmount; i++) {
             _safeMint(msg.sender, supply + i);
         }
