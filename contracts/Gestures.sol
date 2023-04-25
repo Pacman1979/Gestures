@@ -18,8 +18,10 @@ contract Gestures is ERC721Enumerable, Ownable {
     uint8 public cost; // POSSIBLE ISSUE HERE WITH uint8
     uint16 public maxSupply;
     uint32 public startMinting;
+    uint16 public supply = 0;
 
     mapping(address => bool) public whitelisted;
+    mapping(address => mapping(uint256 => bool)) public refunding
 
     event WhitelistMint(uint8 amount, address minter);
     event PublicMint(uint8 amount, address minter);
@@ -53,6 +55,7 @@ contract Gestures is ERC721Enumerable, Ownable {
 
         // Only allow minting after specified time -> block.timestamp is essentially now.
         require(block.timestamp >= startMinting && block.timestamp < startMinting + 28800);
+        require()
 
         require(whitelisted[msg.sender], "Wallet address is not Whitelisted.");
 
@@ -61,7 +64,7 @@ contract Gestures is ERC721Enumerable, Ownable {
         // Payment must be exactly 1 x cost or 2 x cost.
         require(msg.value <= cost * 2 && msg.value > 0, "Invalid Ether amount"); // THIS ALLOWS MAX 2 NFT'S TO MINT PER WALLET ADDRESS!
 
-        uint16 supply = totalSupply(); // APPARENTLY uint256 not convertible to uint16
+        supply = totalSupply(); // APPARENTLY uint256 not convertible to uint16
 
         // Do not let them mint more tokens than available
         require(supply + _wMintAmount <= maxSupply);
@@ -87,7 +90,7 @@ contract Gestures is ERC721Enumerable, Ownable {
         // Require enough payment minus msg.value = balance of minter's wallet??
         require(msg.value <= cost * 2 && msg.value > 0, "Invalid Ether amount"); // THIS ALLOWS MAX 2 NFT'S TO MINT PER WALLET ADDRESS!
 
-        uint16 supply = totalSupply(); // APPARENTLY conversion from uint256 to uint16 issue here.
+        supply = totalSupply(); // APPARENTLY conversion from uint256 to uint16 issue here.
 
         // I'M ASSUMING HERE THE SUPPLY VALUE HAS CARRIED OVER FROM THE whitelistMint function!?!
         require(supply + _pMintAmount <= maxSupply);
@@ -125,45 +128,64 @@ contract Gestures is ERC721Enumerable, Ownable {
         return tokenIds;
     }
 
-    // allows current owner of the token to return the token for a refund = to mint cost.
-    // is '_this' required in this function??
-    function returnable(address _this, address _from, address _to, uint256 _tokenId)
-    	external
+    // allows current owner of the token to return the token for a refund of 90% x mint cost...
+    // Like a money-back guarantee.
+    // Do I need a '_from' address and a '_to' address??
+    // Double check that this period of time is between 90 days and 97 days
+    function returnable(address _buyer, uint256 _tokenId)
+    	private
     	returns (bool)
     {
-		require(block.timestamp >= startMinting + 7776000);
+		require(block.timestamp >= startMinting + 7776000 && block.timestamp < startMinting + 8380800); // Window open between 90 days & 97 days
 
-    	IERC721 returnNFT = IERC721(_this);
-        require(returnNFT.ownerOf(_tokenId) == _from, "Not the owner of the token");
+
+    	IERC721 returnNFT = IERC721(address(this));
+        require(returnNFT.ownerOf(_tokenId) == _buyer, "Not the owner of the token");
         returnNFT.approve(address(this), _tokenId);
         returnNFT.safeTransferFrom(msg.sender, address(this), _tokenId);
 
-        // REVIEW THIS CODE...
-        IERC20 erc20Token = IERC20(addressOfTheERC20Token); // replace `addressOfTheERC20Token` with the actual address of the ERC20 token
-	    erc20Token.approve(_to, _tokenId);
-	    returnNFT.transferFrom(_from, _to, _tokenId);
+	    // add code to transfer the 90% of cost to the buyer here
 
-	    return true;
-	    }
-    }
+		refunding[_buyer][_tokenId] = true; // Mark token as refundable for the buyer. They could have multiple tokens and want...
+		// ...a refund for only 1 = true. Others = false.
+
+        return true;
+	}
+
+    // Owner functions
+
+    // function executeReturn() public view returns (bool) {
+    // 	uint256 elapsedTime = block.timestamp - startTime;
+    // 	uint256 timeThreshold = 97 days;
+
+    // 	if (elapsedTime >= timeThreshold) {
+    // 		return true;
+    // 	} else {
+    // 		return false;
+    // 	}
+    // }
+
+    function return90PercentOfCost(address _buyer, uint256 _tokenId)
+    	private // this was 'external', however I want this function to run automatically after the 'startMinting' date.
+    	returns (bool)
+    {
+    	// IS THIS LINE REQUIRED??
+        // require(block.timestamp > startMinting + 8380800);
+
+        // These lines replace the above...
+        uint256 returnTime = block.timestamp - startMinting;
+	    uint256 timeThreshold = 97 days;
+	    bool canExecuteReturn = returnTime >= timeThreshold;
+
+	    require(canExecuteReturn, "Cannot execute return yet");
 
 
-    	// I want to have the approve function run to get approval from the current holder...
-    	// ... to then be able to 'transferFrom' their wallet address to mine.
+        IERC20 etherBack = IERC20(msg.sender);
+        // NEED TO FACTOR IN THE MAPPING FROM ABOVE...
+	    etherBack.approve(_to, _tokenId);
+	    returnedNFT.transferFrom(_from, _to, _tokenId, ); // do I need the 'data' argument in here?
 
-        // The next step would be transferring the nft back to the original contract address.
-        safeTransferFrom(
-	    //     address from,
-	    //     address to,
-	    //     uint256 tokenId,
-	    //     bytes memory data
-	    // ) public virtual override {
-	    //     require(
-	    //         _isApprovedOrOwner(_msgSender(), tokenId),
-	    //         "ERC721: caller is not token owner nor approved"
-	    //     );
-	    //     _safeTransfer(from, to, tokenId, data);
-	    // }
+	    // FIX...
 
 	    // To approve the return of ether using the ERC20 approve function...
 	    approve(address _spender, uint256 _value) public returns (bool success)
@@ -172,10 +194,14 @@ contract Gestures is ERC721Enumerable, Ownable {
 	    transferFrom(address _from, address _to, uint256 _value)
 	    	public
 	    	returns (bool success)
+	}
 
-    // Owner functions
-
-    function withdraw() public onlyOwner {
+	// Do I need to alter this so the owner can't access the funds until after the date above?
+    function withdraw()
+    	public
+    	onlyOwner
+    {
+    	require(block.timestamp > startMinting + 8352400); // Allows an hour for refunds to go through.
         uint16 balance = address(this).balance;
 
         (bool success, ) = payable(msg.sender).call{value: balance}("");
