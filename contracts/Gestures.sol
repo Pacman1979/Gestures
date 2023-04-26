@@ -21,7 +21,6 @@ contract Gestures is ERC721Enumerable, Ownable {
     uint16 public supply = 0;
 
     mapping(address => bool) public whitelisted;
-    mapping(address => mapping(uint256 => bool)) public refunding
 
     event WhitelistMint(uint8 amount, address minter);
     event PublicMint(uint8 amount, address minter);
@@ -128,72 +127,31 @@ contract Gestures is ERC721Enumerable, Ownable {
         return tokenIds;
     }
 
-    // allows current owner of the token to return the token for a refund of 90% x mint cost...
+    // allows current owner of the token to return the token for a full 100% refund (minus gas)...
     // Like a money-back guarantee.
     // Do I need a '_from' address and a '_to' address??
     // Double check that this period of time is between 90 days and 97 days
     function returnable(address _buyer, uint256 _tokenId)
-    	private
+    	public
     	returns (bool)
     {
-		require(block.timestamp >= startMinting + 7776000 && block.timestamp < startMinting + 8380800); // Window open between 90 days & 97 days
-
+		require(block.timestamp >= startMinting + 7776000 && block.timestamp < startMinting + 8382600); // Window open between 90 days & 97 days...
+		// ... plus a 30 minute allowance for all the transactions to go through if someone requests a refund with only seconds to spare...
+		// I'll show the time running out beforehand though.
 
     	IERC721 returnNFT = IERC721(address(this));
         require(returnNFT.ownerOf(_tokenId) == _buyer, "Not the owner of the token");
-        returnNFT.approve(address(this), _tokenId);
+        returnNFT.approve(msg.sender, _tokenId);
         returnNFT.safeTransferFrom(msg.sender, address(this), _tokenId);
 
-	    // add code to transfer the 90% of cost to the buyer here
+        require(returnNFT.ownerOf(_tokenId) == address(this), "NFT not received");
 
-		refunding[_buyer][_tokenId] = true; // Mark token as refundable for the buyer. They could have multiple tokens and want...
-		// ...a refund for only 1 = true. Others = false.
+		IERC20 etherBack = IERC20(msg.sender);
+
+	    etherBack.approve(msg.sender, _cost);
+	    etherBack.transferFrom(address(this), msg.sender, _cost);
 
         return true;
-	}
-
-    // Owner functions
-
-    // function executeReturn() public view returns (bool) {
-    // 	uint256 elapsedTime = block.timestamp - startTime;
-    // 	uint256 timeThreshold = 97 days;
-
-    // 	if (elapsedTime >= timeThreshold) {
-    // 		return true;
-    // 	} else {
-    // 		return false;
-    // 	}
-    // }
-
-    function return90PercentOfCost(address _buyer, uint256 _tokenId)
-    	private // this was 'external', however I want this function to run automatically after the 'startMinting' date.
-    	returns (bool)
-    {
-    	// IS THIS LINE REQUIRED??
-        // require(block.timestamp > startMinting + 8380800);
-
-        // These lines replace the above...
-        uint256 returnTime = block.timestamp - startMinting;
-	    uint256 timeThreshold = 97 days;
-	    bool canExecuteReturn = returnTime >= timeThreshold;
-
-	    require(canExecuteReturn, "Cannot execute return yet");
-
-
-        IERC20 etherBack = IERC20(msg.sender);
-        // NEED TO FACTOR IN THE MAPPING FROM ABOVE...
-	    etherBack.approve(_to, _tokenId);
-	    returnedNFT.transferFrom(_from, _to, _tokenId, ); // do I need the 'data' argument in here?
-
-	    // FIX...
-
-	    // To approve the return of ether using the ERC20 approve function...
-	    approve(address _spender, uint256 _value) public returns (bool success)
-
-	    // To transfer the ether, using the ERC20 transferFrom function,to the owner's address...
-	    transferFrom(address _from, address _to, uint256 _value)
-	    	public
-	    	returns (bool success)
 	}
 
 	// Do I need to alter this so the owner can't access the funds until after the date above?
