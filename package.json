@@ -1,5 +1,5 @@
 {
-  "name": "react_hardhat_template",
+  "name": "Gestures",
   "version": "1.0.0",
   "description": "",
   "dependencies": {
@@ -20,7 +20,7 @@
     "test": "react-scripts test",
     "eject": "react-scripts eject"
   },
-  "author": "gregory@dappuniversity.com",
+  "author": "ethanethernol@proton.me",
   "license": "ISC",
   "eslintConfig": {
     "extends": [

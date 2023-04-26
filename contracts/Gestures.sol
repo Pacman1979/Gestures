@@ -3,36 +3,32 @@ pragma solidity ^0.8.0;
 
 import "./ERC721Enumerable.sol";
 import "./Ownable.sol";
+import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 
-// import "hardhat/console.sol";
-
-// 'Ownable', so the owner can withdraw to their address...
 contract Gestures is ERC721Enumerable, Ownable {
 
-	// I think this allows for any numbers (uints) that are combined with strings...
-    // e.g. return(string(abi.enc... to be recognised as both a uint and a string.
-    using Strings for uint256; // I can still use this with lower uint numbers according to ChatGPT but had issues!
+    using Strings for uint256;
 
     string public baseURI;
     string public baseExtension = ".json";
-    uint8 public cost; // POSSIBLE ISSUE HERE WITH uint8
+    uint256 public cost;
     uint16 public maxSupply;
     uint32 public startMinting;
-    uint16 public supply = 0;
+    uint256 public supply = 0;
 
     mapping(address => bool) public whitelisted;
 
-    event WhitelistMint(uint8 amount, address minter);
-    event PublicMint(uint8 amount, address minter);
-    event Withdraw(uint8 amount, address owner);
+    event WhitelistMint(uint16 amount, address minter);
+    event PublicMint(uint16 amount, address minter);
+    event Withdraw(uint256 amount, address owner);
 
     constructor(
         string memory _name,
         string memory _symbol,
-        uint8 _cost, // price of the mint e.g. 0.1 eth. APPARENTLY || doesn't apply to Bool and uint8?!?
-        uint16 _maxSupply, // e.g. 100 for my 1st project.
-        uint32 _startMinting, // start time to mint. Was '_allowMintingOn'.
-        string memory _baseURI // ??? Is this the hash address for the nft's???
+        uint256 _cost,
+        uint16 _maxSupply,
+        uint32 _startMinting,
+        string memory _baseURI
     ) ERC721(_name, _symbol) {
         cost = _cost;
         maxSupply = _maxSupply;
@@ -49,95 +45,69 @@ contract Gestures is ERC721Enumerable, Ownable {
     function isWhitelisted(address wl) public view returns (bool) {
     	return whitelisted[wl];
     }
-    // payable allows the contract to receive ether.
+
     function whitelistMint(uint16 _wMintAmount) public payable {
 
-        // Only allow minting after specified time -> block.timestamp is essentially now.
         require(block.timestamp >= startMinting && block.timestamp < startMinting + 28800);
-        require()
-
         require(whitelisted[msg.sender], "Wallet address is not Whitelisted.");
+		require(_wMintAmount == 1 || _wMintAmount == 2, "Invalid mint amount.");
+        require(msg.value <= cost * 2 && msg.value > 0, "Invalid Ether amount.");
 
-        // only allowed to mint 1 or 2.
-		require(_wMintAmount == 1 || _wMintAmount == 2, "Invalid mint amount");
-        // Payment must be exactly 1 x cost or 2 x cost.
-        require(msg.value <= cost * 2 && msg.value > 0, "Invalid Ether amount"); // THIS ALLOWS MAX 2 NFT'S TO MINT PER WALLET ADDRESS!
+        supply = totalSupply();
 
-        supply = totalSupply(); // APPARENTLY uint256 not convertible to uint16
-
-        // Do not let them mint more tokens than available
         require(supply + _wMintAmount <= maxSupply);
 
-        // Create tokens - this loop helps people mint multiple NFTs.
-        // _wMintAmount is the number the whitelisted buyer requests to buy.
-        for(uint16 i = 1; i <= _wMintAmount; i++) { // Should this actually be uint256 i = -; i < _wMintAmount; i++) ??
+        for(uint16 i = 1; i <= _wMintAmount; i++) {
             _safeMint(msg.sender, supply + i);
         }
 
-        // Set the whitelisted status of the address to false after they have minted...
     	whitelisted[msg.sender] = false;
 
-        // Emit event
-        emit WhitelistMint(_wMintAmount, msg.sender); // APPARENTLY issues here with conversion from uint16 to uint8 here.
+        emit WhitelistMint(_wMintAmount, msg.sender);
     }
 
     function publicMint(uint16 _pMintAmount) public payable {
-    	// Only allow minting after specified time - block.timestamp is essentially now.
+
         require(block.timestamp >= startMinting + 28800 && block.timestamp < startMinting + 57600);
-        // Must mint at least 1 token
 		require(_pMintAmount == 1 || _pMintAmount == 2, "Invalid mint amount");
-        // Require enough payment minus msg.value = balance of minter's wallet??
-        require(msg.value <= cost * 2 && msg.value > 0, "Invalid Ether amount"); // THIS ALLOWS MAX 2 NFT'S TO MINT PER WALLET ADDRESS!
+        require(msg.value <= cost * 2 && msg.value > 0, "Invalid Ether amount");
 
-        supply = totalSupply(); // APPARENTLY conversion from uint256 to uint16 issue here.
+        supply = totalSupply();
 
-        // I'M ASSUMING HERE THE SUPPLY VALUE HAS CARRIED OVER FROM THE whitelistMint function!?!
         require(supply + _pMintAmount <= maxSupply);
 
-        // Create tokens - this loop helps people mint multiple NFTs.
-        // _pMintAmount is the number the public buyer requests to buy. *** ONLY WANT 1 OPPORTUNITY/TRANSACTION PER BUYER ***
         for(uint16 i = 1; i <= _pMintAmount; i++) {
             _safeMint(msg.sender, supply + i);
         }
 
-        // Emit event
         emit PublicMint(_pMintAmount, msg.sender);
     }
-    // Return metadata IPFS url
-    // EG: 'ipfs://QmQ2jnDYecFhrf3asEWjyjZRX1pZSsNWG3qHzmNDvXa9qg/1.json'
-    function tokenURI(uint16 _tokenId)
+
+    function tokenURI(uint256 _tokenId)
         public
         view
         virtual
         override
         returns(string memory)
     {
-        // '_exists' is a function that comes with our libraries.
         require(_exists(_tokenId), 'token does not exist');
         return(string(abi.encodePacked(baseURI, _tokenId.toString(), baseExtension)));
     }
 
-    // CHECK WHETHER I'VE DONE THIS RIGHT...
-    function walletOfOwner(address _owner) public view returns(uint16[] memory) {
-        uint16 ownerTokenCount = balanceOf(_owner);
-        uint16[] memory tokenIds = new uint16[](ownerTokenCount);
-        for(uint16 i; i < ownerTokenCount; i++) {
+    function walletOfOwner(address _owner) public view returns(uint256[] memory) {
+        uint256 ownerTokenCount = balanceOf(_owner);
+        uint256[] memory tokenIds = new uint256[](ownerTokenCount);
+        for(uint256 i; i < ownerTokenCount; i++) {
             tokenIds[i] = tokenOfOwnerByIndex(_owner, i);
         }
         return tokenIds;
     }
 
-    // allows current owner of the token to return the token for a full 100% refund (minus gas)...
-    // Like a money-back guarantee.
-    // Do I need a '_from' address and a '_to' address??
-    // Double check that this period of time is between 90 days and 97 days
     function returnable(address _buyer, uint256 _tokenId)
     	public
     	returns (bool)
     {
-		require(block.timestamp >= startMinting + 7776000 && block.timestamp < startMinting + 8382600); // Window open between 90 days & 97 days...
-		// ... plus a 30 minute allowance for all the transactions to go through if someone requests a refund with only seconds to spare...
-		// I'll show the time running out beforehand though.
+		require(block.timestamp >= startMinting + 7776000 && block.timestamp < startMinting + 8382600);
 
     	IERC721 returnNFT = IERC721(address(this));
         require(returnNFT.ownerOf(_tokenId) == _buyer, "Not the owner of the token");
@@ -147,20 +117,18 @@ contract Gestures is ERC721Enumerable, Ownable {
         require(returnNFT.ownerOf(_tokenId) == address(this), "NFT not received");
 
 		IERC20 etherBack = IERC20(msg.sender);
-
-	    etherBack.approve(msg.sender, _cost);
-	    etherBack.transferFrom(address(this), msg.sender, _cost);
+	    etherBack.approve(msg.sender, cost);
+	    etherBack.transferFrom(address(this), msg.sender, cost);
 
         return true;
 	}
 
-	// Do I need to alter this so the owner can't access the funds until after the date above?
     function withdraw()
     	public
     	onlyOwner
     {
-    	require(block.timestamp > startMinting + 8352400); // Allows an hour for refunds to go through.
-        uint16 balance = address(this).balance;
+    	require(block.timestamp > startMinting + 8352400);
+        uint256 balance = address(this).balance;
 
         (bool success, ) = payable(msg.sender).call{value: balance}("");
         require(success);
@@ -168,10 +136,7 @@ contract Gestures is ERC721Enumerable, Ownable {
         emit Withdraw(balance, msg.sender);
     }
 
-    // allows the owner to change the price of the mint at anytime...
     function setCost(uint256 _newCost) public onlyOwner {
         cost = _newCost;
     }
-
 }
-
