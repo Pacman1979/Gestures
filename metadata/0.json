@@ -1,0 +1,34 @@
+{
+  "id": "175b3aba08e956c66a891c99b8cdcfe38a8dfb97",
+  "name": "#0",
+  "description": "10,000 gestures",
+  "image": "ipfs://QmQPEMsfd1tJnqYPbnTQCjoa8vczfsV1FmqZWgRdNQ7z3g/0.png",
+  "edition": 0,
+  "date": 1649379902184,
+  "attributes": [
+    {
+      "trait_type": "Backgrounds",
+      "value": "Black"
+    },
+    // {
+    //   "trait_type": "Face",
+    //   "value": "Body 6"
+    // },
+    // {
+    //   "trait_type": "Hats and Hair",
+    //   "value": "Mohawk"
+    // },
+    // {
+    //   "trait_type": "Eyes and Glasses",
+    //   "value": "Green Eyes"
+    // },
+    // {
+    //   "trait_type": "Nose",
+    //   "value": "Standard"
+    // },
+    // {
+    //   "trait_type": "Mouth",
+    //   "value": "Smile"
+    // }
+  ]
+}
