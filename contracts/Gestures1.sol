@@ -5,7 +5,7 @@ import "./ERC721Enumerable.sol";
 import "./Ownable.sol";
 import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 
-contract Gestures is ERC721Enumerable, Ownable {
+contract Gestures1 is ERC721Enumerable, Ownable {
 
     using Strings for uint256;
 
@@ -50,12 +50,12 @@ contract Gestures is ERC721Enumerable, Ownable {
 
         require(block.timestamp >= startMinting && block.timestamp < startMinting + 28800);
         require(whitelisted[msg.sender], "Wallet address is not Whitelisted.");
-		require(_wMintAmount == 1 || _wMintAmount == 2, "Please enter 1 or 2.");
-        require(msg.value <= cost * 2, "Please enter the exact cost of 1 or 2 NFTs.");
+		require(_wMintAmount == 1 || _wMintAmount == 2, "Invalid mint amount."); // Could do an if loop basically saying if(_wMintAmount != 1 && !=2, "throw error")
+        require(msg.value <= cost * 2 && msg.value > 0, "Invalid Ether amount."); // Same as above !=1 && !=2
 
         supply = totalSupply();
 
-        require(maxSupply >= supply + _wMintAmount);
+        require(supply + _wMintAmount <= maxSupply);
 
         for(uint16 i = 1; i <= _wMintAmount; i++) {
             _safeMint(msg.sender, supply + i);
@@ -117,7 +117,7 @@ contract Gestures is ERC721Enumerable, Ownable {
         require(returnNFT.ownerOf(_tokenId) == address(this), "NFT not received");
 
 		IERC20 etherBack = IERC20(msg.sender);
-	    etherBack.approve(msg.sender, cost); // COULD THERE BE AN ISSUE HERE?!?
+	    etherBack.approve(msg.sender, cost);
 	    etherBack.transferFrom(address(this), msg.sender, cost);
 
         return true;
