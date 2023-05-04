@@ -13,7 +13,7 @@ contract Gestures is ERC721Enumerable, Ownable {
     string public baseExtension = ".json";
     uint256 public cost;
     uint16 public maxSupply;
-    uint32 public wlStartTime; //do I need to make this equal to block.timestamp or would this create an issue for the wStartTime??
+    uint32 public wlStartTime;
     uint256 public supply = 0;
 
     mapping(address => bool) public whitelisted;
@@ -50,7 +50,7 @@ contract Gestures is ERC721Enumerable, Ownable {
         require(block.timestamp >= wlStartTime + 3600, "Whitelist Mint not open yet.");
         require(whitelisted[msg.sender], "Wallet address is not Whitelisted.");
 		require(_wMintAmount == 1 || _wMintAmount == 2, "Please enter 1 or 2.");
-        require(msg.value <= cost * 2, "Please enter the exact cost of 1 or 2 NFTs.");
+        require(msg.value == _wMintAmount * cost, "Please enter the exact cost of 1 or 2 NFTs.");
 
         supply = totalSupply();
 
@@ -66,9 +66,9 @@ contract Gestures is ERC721Enumerable, Ownable {
     }
 
     function publicMint(uint16 _pMintAmount) public payable {
-// uint256 pStartTime;
+        uint256 pStartTime = wlStartTime + 28800;
 
-        require(pStartTime >= wlStartTime + 28800, "Public Mint not open yet.");
+        require(block.timestamp >= pStartTime, "Public Mint not open yet.");
 		require(_pMintAmount == 1 || _pMintAmount == 2, "Invalid mint amount");
         require(msg.value <= cost * 2 && msg.value > 0, "Invalid Ether amount");
 
@@ -107,10 +107,11 @@ contract Gestures is ERC721Enumerable, Ownable {
     	public
     	returns (bool)
     {
-// uint256 rStartTime = wlStartTime + 7776000;
-// NEED AN rEndTime???
+        uint256 rStartTime = wlStartTime + 7776000;
+        uint256 rEndTime = wlStartTime + 8382600;
 
-		require(block.timestamp >= wlStartTime + 7776000 && block.timestamp < wlStartTime + 8382600);
+		require(block.timestamp >= rStartTime, "Refund not available yet.");
+        require(block.timestamp <= rEndTime, "Refund period closed." );
 
     	IERC721 returnNFT = IERC721(address(this));
         require(returnNFT.ownerOf(_tokenId) == _buyer, "Not the owner of the token");
@@ -130,8 +131,8 @@ contract Gestures is ERC721Enumerable, Ownable {
     	public
     	onlyOwner
     {
-// uint256 wStartTime = wlStartTime + 8352400
-    	require(block.timestamp > wlStartTime + 8352400);
+        uint256 wStartTime = wlStartTime + 8384400;
+    	require(block.timestamp > wStartTime, "Contract Owner funds not available.");
         uint256 balance = address(this).balance;
 
         (bool success, ) = payable(msg.sender).call{value: balance}("");
