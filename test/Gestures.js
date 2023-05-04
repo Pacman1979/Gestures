@@ -25,11 +25,11 @@ describe('Gestures', () => {
   })
 
   describe('Deployment', () => {
-    const START_MINTING = (Date.now() + 120000).toString().slice(0, 10) // 2 minutes from now
+    const WL_START_TIME = (Date.now() + 120000).toString().slice(0, 10) // 2 minutes from now
 
     beforeEach(async () => {
       const Gestures = await ethers.getContractFactory('Gestures')
-      nft = await Gestures.deploy(NAME, SYMBOL, COST, MAX_SUPPLY, START_MINTING, BASE_URI)
+      nft = await Gestures.deploy(NAME, SYMBOL, COST, MAX_SUPPLY, WL_START_TIME, BASE_URI)
     })
 
     it('has correct name', async () => {
@@ -48,9 +48,9 @@ describe('Gestures', () => {
       expect(await nft.maxSupply()).to.equal(MAX_SUPPLY)
     })
 
-    // it('returns the start minting time', async () => {
-    //   expect(await nft.startMinting()).to.equal(START_MINTING.toString())
-    // })
+    it('sets the start minting time correctly', async () => {
+      expect(await nft.wlStartTime()).to.equal(WL_START_TIME)
+    })
 
     it('returns the base URI', async () => {
       expect(await nft.baseURI()).to.equal(BASE_URI)
@@ -61,16 +61,64 @@ describe('Gestures', () => {
     })
   })
 
+  describe('Whitelist Minting', () => {
+  let transaction, result
+
+    describe('Success', async () => {
+
+      const WL_START_TIME = Date.now().toString().slice(0, 10) // Now
+
+      beforeEach(async () => {
+        const Gestures = await ethers.getContractFactory('Gestures')
+        nft = await Gestures.deploy(NAME, SYMBOL, COST, MAX_SUPPLY, START_MINTING, BASE_URI)
+
+        let timestamp = await nft.connect(minter).whitelistMint()
+
+        transaction = await nft.connect(minter).whitelistMint(1, { value: COST })
+        result = await transaction.wait()
+      })
+
+      it("checks minter being added to whitelist by Owner.", async function () {
+      })
+
+      it("checks mint is whitelisted by Owner.", async function () {
+      })
+
+      it("checks mint is whitelisted by minter.", async function () {
+      })
+
+    })
+
+    describe('Failure', async () => {
+
+      it("checks minter being added to whitelist by minter.", async function () {
+      })
+
+      it("reverts when whitelist start time not passed.", async function () {
+      })
+
+      it("reverts when wMintAmount is > 2.", async function () {
+      })
+
+      it("reverts when whitelister tries to mint twice.", async function () {
+      })
+
+      it("reverts when cost != wMintAmount x cost.", async function () { //is this wording right? E.g. 0.2 eth != 3 x 0.1
+      })
+
+      it("reverts when maxSupply is exceeded.", async function () { // e.g. when maxSupply is 1 and they mint 2.
+      })
+
   describe('Public Minting', () => {
   let transaction, result
 
     describe('Success', async () => {
 
-      const ALLOW_MINTING_ON = Date.now().toString().slice(0, 10) // Now
+      const WL_START_TIME = Date.now().toString().slice(0, 10) // Now
 
       beforeEach(async () => {
         const Gestures = await ethers.getContractFactory('Gestures')
-        nft = await Gestures.deploy(NAME, SYMBOL, COST, MAX_SUPPLY, ALLOW_MINTING_ON, BASE_URI)
+        nft = await Gestures.deploy(NAME, SYMBOL, COST, MAX_SUPPLY, START_MINTING, BASE_URI)
 
         let timestamp = await nft.connect(minter).publicMint()
 
@@ -79,33 +127,194 @@ describe('Gestures', () => {
 
       })
 
-      it('returns the address of the minter', async () => {
-        expect(await nft.ownerOf(1)).to.equal(minter.address)
+      it("NO SUCCESS CASES???", async function () {
+
+      })
+    })
+
+    describe('Failure', async () => {
+
+      it("reverts before startMinting + 28800", async function () {
+        // set startMinting to 1 hour in the future
+        const startMinting = Math.floor(Date.now() / 1000) + 3600;
+        await nft.setStartMinting(startMinting);
+        await expect(nft.connect(minter).publicMint(1, { value: COST }))
+          .to.be.revertedWith("revert");
       })
 
-      // it('returns total number of tokens the minter owns', async () => {
-      //   expect(await nft.balanceOf(minter.address)).to.equal(1)
-      // })
+      it("reverts with invalid mint amount", async function () {
+      await expect(nft.connect(minter).publicMint(3, { value: COST }))
+        .to.be.revertedWith("Invalid mint amount");
+      })
 
-      // it('returns IPFS URI', async () => {
-      //   // EG: 'ipfs://QmQ2jnDYecFhrf3asEWjyjZRX1pZSsNWG3qHzmNDvXa9qg/1.json'
-      //   // Uncomment this line to see example
-      //   // console.log(await nft.tokenURI(1))
-      //   expect(await nft.tokenURI(1)).to.equal(`${BASE_URI}1.json`)
-      // })
+      it("reverts with invalid ether amount", async function () {
+        await expect(nft.connect(minter).publicMint(1, { value: 0 }))
+          .to.be.revertedWith("Invalid Ether amount");
+      })
 
-      // it('updates the total supply', async () => {
-      //   expect(await nft.totalSupply()).to.equal(1)
-      // })
+      it("reverts after max supply is reached", async function () {
+        // mint maxSupply - 1 tokens
+        await nft.connect(minter).publicMint(1, { value: COST });
+        await nft.connect(minter).publicMint(1, { value: COST });
+        // the next mint should fail because max supply is reached
+        await expect(nft.connect(minter).publicMint(1, { value: COST }))
+          .to.be.revertedWith("SafeMath: addition overflow");
+      })
+    })
+  })
 
-      // it('updates the contract ether balance', async () => {
-      //   expect(await ethers.provider.getBalance(nft.address)).to.equal(COST)
-      // })
+  describe('Token URI', () => {
+  let transaction, result
 
-      // it('emits Mint event', async () => {
-      //   await expect(transaction).to.emit(nft, 'Mint')
-      //     .withArgs(1, minter.address)
-      // })
+    describe('Failure', async () => {
+
+      const WL_START_TIME = Date.now().toString().slice(0, 10) // Now
+
+      beforeEach(async () => {
+        const Gestures = await ethers.getContractFactory('Gestures')
+        nft = await Gestures.deploy(NAME, SYMBOL, COST, MAX_SUPPLY, START_MINTING, BASE_URI)
+
+        let timestamp = await nft.connect(minter).publicMint()
+
+        transaction = await nft.connect(minter).publicMint(1, { value: COST })
+        result = await transaction.wait()
+
+      })
+
+      it("reverts before startMinting + 28800", async function () {
+        // set startMinting to 1 hour in the future
+        const startMinting = Math.floor(Date.now() / 1000) + 3600;
+        await nft.setStartMinting(startMinting);
+        await expect(nft.connect(minter).publicMint(1, { value: COST }))
+          .to.be.revertedWith("revert");
+      })
+    })
+  })
+
+  describe('Wallet of Owner', () => {
+  let transaction, result
+
+    describe('Success', async () => {
+
+      const WL_START_TIME = Date.now().toString().slice(0, 10) // Now
+
+      beforeEach(async () => {
+        const Gestures = await ethers.getContractFactory('Gestures')
+        nft = await Gestures.deploy(NAME, SYMBOL, COST, MAX_SUPPLY, START_MINTING, BASE_URI)
+
+        let timestamp = await nft.connect(minter).publicMint()
+
+        transaction = await nft.connect(minter).publicMint(1, { value: COST })
+        result = await transaction.wait()
+
+      })
+
+      it("NO SUCCESS CASES???", async function () {
+
+      })
+    })
+
+  describe('Returnable Function', () => {
+  let transaction, result
+
+    describe('Success', async () => {
+
+      const WL_START_TIME = Date.now().toString().slice(0, 10) // Now
+
+      beforeEach(async () => {
+        const Gestures = await ethers.getContractFactory('Gestures')
+        nft = await Gestures.deploy(NAME, SYMBOL, COST, MAX_SUPPLY, START_MINTING, BASE_URI)
+
+        let timestamp = await nft.connect(minter).publicMint()
+
+        transaction = await nft.connect(minter).publicMint(1, { value: COST })
+        result = await transaction.wait()
+
+      })
+
+      it("", async function () {
+
+      })
+    })
+
+    describe('Failure', async () => {
+
+      const WL_START_TIME = Date.now().toString().slice(0, 10) // Now
+
+      beforeEach(async () => {
+        const Gestures = await ethers.getContractFactory('Gestures')
+        nft = await Gestures.deploy(NAME, SYMBOL, COST, MAX_SUPPLY, START_MINTING, BASE_URI)
+
+        let timestamp = await nft.connect(minter).publicMint()
+
+        transaction = await nft.connect(minter).publicMint(1, { value: COST })
+        result = await transaction.wait()
+
+      })
+    })
+  })
+
+  describe('Withdraw Funds from Contract', () => {
+  let transaction, result
+
+    describe('Success', async () => {
+
+      const WL_START_TIME = Date.now().toString().slice(0, 10) // Now
+
+      beforeEach(async () => {
+        const Gestures = await ethers.getContractFactory('Gestures')
+        nft = await Gestures.deploy(NAME, SYMBOL, COST, MAX_SUPPLY, START_MINTING, BASE_URI)
+
+        let timestamp = await nft.connect(minter).publicMint()
+
+        transaction = await nft.connect(minter).publicMint(1, { value: COST })
+        result = await transaction.wait()
+
+      })
+
+      it("", async function () {
+
+      })
+    })
+
+    describe('Failure', async () => {
+
+      const WL_START_TIME = Date.now().toString().slice(0, 10) // Now
+
+      beforeEach(async () => {
+        const Gestures = await ethers.getContractFactory('Gestures')
+        nft = await Gestures.deploy(NAME, SYMBOL, COST, MAX_SUPPLY, START_MINTING, BASE_URI)
+
+        let timestamp = await nft.connect(minter).publicMint()
+
+        transaction = await nft.connect(minter).publicMint(1, { value: COST })
+        result = await transaction.wait()
+
+      })
+    })
+  })
+
+  describe('Setting Mint Cost', () => {
+  let transaction, result
+
+    describe('Success', async () => {
+
+      const WL_START_TIME = Date.now().toString().slice(0, 10) // Now
+
+      beforeEach(async () => {
+        const Gestures = await ethers.getContractFactory('Gestures')
+        nft = await Gestures.deploy(NAME, SYMBOL, COST, MAX_SUPPLY, START_MINTING, BASE_URI)
+
+        let timestamp = await nft.connect(minter).publicMint()
+
+        transaction = await nft.connect(minter).publicMint(1, { value: COST })
+        result = await transaction.wait()
+
+      })
+
+      it("", async function () {
+
+      })
     })
   })
 })
