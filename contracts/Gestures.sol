@@ -13,7 +13,7 @@ contract Gestures is ERC721Enumerable, Ownable {
     string public baseExtension = ".json";
     uint256 public cost;
     uint16 public maxSupply;
-    uint32 public startMinting; // Change to wlStartTime and add pStartTime, wStartTime and rStartTime
+    uint32 public wlStartTime; //do I need to make this equal to block.timestamp or would this create an issue for the wStartTime??
     uint256 public supply = 0;
 
     mapping(address => bool) public whitelisted;
@@ -27,12 +27,12 @@ contract Gestures is ERC721Enumerable, Ownable {
         string memory _symbol,
         uint256 _cost,
         uint16 _maxSupply,
-        uint32 _startMinting,
+        uint32 _wlStartTime,
         string memory _baseURI
     ) ERC721(_name, _symbol) {
         cost = _cost;
         maxSupply = _maxSupply;
-        startMinting = _startMinting;
+        wlStartTime = _wlStartTime;
         baseURI = _baseURI;
     }
 
@@ -47,8 +47,7 @@ contract Gestures is ERC721Enumerable, Ownable {
     }
 
     function whitelistMint(uint16 _wMintAmount) public payable {
-
-        require(block.timestamp >= startMinting && block.timestamp < startMinting + 28800);
+        require(block.timestamp >= wlStartTime + 3600, "Whitelist Mint not open yet.");
         require(whitelisted[msg.sender], "Wallet address is not Whitelisted.");
 		require(_wMintAmount == 1 || _wMintAmount == 2, "Please enter 1 or 2.");
         require(msg.value <= cost * 2, "Please enter the exact cost of 1 or 2 NFTs.");
@@ -67,8 +66,9 @@ contract Gestures is ERC721Enumerable, Ownable {
     }
 
     function publicMint(uint16 _pMintAmount) public payable {
+// uint256 pStartTime;
 
-        require(block.timestamp >= startMinting + 28800 && block.timestamp < startMinting + 57600);
+        require(pStartTime >= wlStartTime + 28800, "Public Mint not open yet.");
 		require(_pMintAmount == 1 || _pMintAmount == 2, "Invalid mint amount");
         require(msg.value <= cost * 2 && msg.value > 0, "Invalid Ether amount");
 
@@ -107,7 +107,10 @@ contract Gestures is ERC721Enumerable, Ownable {
     	public
     	returns (bool)
     {
-		require(block.timestamp >= startMinting + 7776000 && block.timestamp < startMinting + 8382600);
+// uint256 rStartTime = wlStartTime + 7776000;
+// NEED AN rEndTime???
+
+		require(block.timestamp >= wlStartTime + 7776000 && block.timestamp < wlStartTime + 8382600);
 
     	IERC721 returnNFT = IERC721(address(this));
         require(returnNFT.ownerOf(_tokenId) == _buyer, "Not the owner of the token");
@@ -127,7 +130,8 @@ contract Gestures is ERC721Enumerable, Ownable {
     	public
     	onlyOwner
     {
-    	require(block.timestamp > startMinting + 8352400);
+// uint256 wStartTime = wlStartTime + 8352400
+    	require(block.timestamp > wlStartTime + 8352400);
         uint256 balance = address(this).balance;
 
         (bool success, ) = payable(msg.sender).call{value: balance}("");

@@ -21,8 +21,7 @@
     "truffle": "^5.1.65",
     "truffle-plugin-verify": "^0.5.21",
     "web-vitals": "^2.1.4",
-    "web3": "^0.20.7",
-    "canvas": "2.9.0"
+    "web3": "^0.20.7"
   },
   "scripts": {
     "start": "react-app-rewired start",
@@ -49,6 +48,8 @@
     ]
   },
   "devDependencies": {
+    "@nomicfoundation/hardhat-toolbox": "^1.0.2",
+    "hardhat": "^2.10.1",
     "assert": "^2.0.0",
     "buffer": "^6.0.3",
     "crypto-browserify": "^3.12.0",
@@ -62,6 +63,6 @@
   },
   "description": "Gestures NFT Collection",
   "main": "config-overrides.js",
-  "author": "",
+  "author": "cryptotraderphil@protonmail.com",
   "license": "ISC"
 }
