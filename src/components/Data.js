@@ -1,3 +1,4 @@
+import React from "react";
 import { ethers } from 'ethers' // for formatting the cost units.
 // do I need to import the 'Gestures.sol' for it to use all the Data arguments?
 

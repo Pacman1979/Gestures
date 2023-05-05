@@ -78,13 +78,18 @@ describe('Gestures', () => {
         result = await transaction.wait()
       })
 
-      it("checks minter being added to whitelist by Owner.", async function () {
+      it("checks the minter has been added to the whitelist by the Owner.", async function () {
+      // add minter address to updateWhitelist function - ENSURE ITS DONE BY OWNER (ACCOUNT[0])
+        await nft.updateWhitelist([minter], true)
+        // expect that minter is on the whitelist when isWhitelisted is run and returns true.
+        const isWhitelisted = await nft.isWhitelisted()
+        expect(await nft.isWhitelisted(minter).to.equal(true))
       })
 
-      it("checks mint is whitelisted by Owner.", async function () {
+      it("checks minter is whitelisted by Owner.", async function () {
       })
 
-      it("checks mint is whitelisted by minter.", async function () {
+      it("checks minter is whitelisted by minter.", async function () {
       })
 
     })

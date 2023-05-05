@@ -1,3 +1,4 @@
+import React from "react";
 import { ethers } from 'ethers' // for formatting the cost units.
 
 const Data1 = ({ maxSupply, totalSupply, cost, balance }) => {
