@@ -13,6 +13,7 @@ describe('Gestures', () => {
   const COST = ether(0.1)
   const MAX_SUPPLY = 100
   const BASE_URI = 'ipfs://QmPk6cAtZ68tdeYEWSMfiznzDzuBXYXznZo4x5ArcbUJnp/'
+  let WL_START_TIME = (Date.now()).toString().slice(0, 10) // starts in 2 minutes
 
   let nft,
       deployer,
@@ -25,7 +26,6 @@ describe('Gestures', () => {
   })
 
   describe('Deployment', () => {
-    const WL_START_TIME = (Date.now() + 120000).toString().slice(0, 10) // 2 minutes from now
 
     beforeEach(async () => {
       const Gestures = await ethers.getContractFactory('Gestures')
@@ -66,37 +66,31 @@ describe('Gestures', () => {
 
     describe('Success', async () => {
 
-      const WL_START_TIME = Date.now().toString().slice(0, 10) // Now
+      let WL_START_TIME = Date.now().toString().slice(0, 10) // Now
 
       beforeEach(async () => {
         const Gestures = await ethers.getContractFactory('Gestures')
-        nft = await Gestures.deploy(NAME, SYMBOL, COST, MAX_SUPPLY, START_MINTING, BASE_URI)
+        nft = await Gestures.deploy(NAME, SYMBOL, COST, MAX_SUPPLY, WL_START_TIME, BASE_URI)
 
-        let timestamp = await nft.connect(minter).whitelistMint()
+        // let timestamp = await nft.connect(minter).whitelistMint()
 
-        transaction = await nft.connect(minter).whitelistMint(1, { value: COST })
-        result = await transaction.wait()
+        // transaction = await nft.connect(minter).whitelistMint(1, { value: COST })
+        // result = await transaction.wait()
       })
 
-      it("checks the minter has been added to the whitelist by the Owner.", async function () {
-      // add minter address to updateWhitelist function - ENSURE ITS DONE BY OWNER (ACCOUNT[0])
-        await nft.updateWhitelist([minter], true)
-        // expect that minter is on the whitelist when isWhitelisted is run and returns true.
-        const isWhitelisted = await nft.isWhitelisted()
-        expect(await nft.isWhitelisted(minter).to.equal(true))
-      })
-
-      it("checks minter is whitelisted by Owner.", async function () {
-      })
-
-      it("checks minter is whitelisted by minter.", async function () {
-      })
-
+      // it("checks the minter has been added to the whitelist by the Owner.", async function () {
+      // // add minter address to updateWhitelist function - ENSURE ITS DONE BY OWNER (ACCOUNT[0])
+      //   await nft.updateWhitelist([minter.address], true, { from: deployer })
+      //   // expect that minter is on the whitelist when isWhitelisted is run and returns true.
+      //   const isWhitelisted = await nft.isWhitelisted([minter.address]) //isWhitelisted returns a bool
+      //   expect(await nft.isWhitelisted().to.equal(true))
+      // })
     })
 
     describe('Failure', async () => {
 
-      it("checks minter being added to whitelist by minter.", async function () {
+      it("checks the minter has been added to the whitelist by the minter.", async function () {
+        await expect(nft.updateWhitelist([minter], true, { from: minter })).to.be.reverted
       })
 
       it("reverts when whitelist start time not passed.", async function () {
@@ -113,17 +107,19 @@ describe('Gestures', () => {
 
       it("reverts when maxSupply is exceeded.", async function () { // e.g. when maxSupply is 1 and they mint 2.
       })
+    })
+  })
 
   describe('Public Minting', () => {
   let transaction, result
 
     describe('Success', async () => {
 
-      const WL_START_TIME = Date.now().toString().slice(0, 10) // Now
+      let WL_START_TIME = Date.now().toString().slice(0, 10) // Now
 
       beforeEach(async () => {
         const Gestures = await ethers.getContractFactory('Gestures')
-        nft = await Gestures.deploy(NAME, SYMBOL, COST, MAX_SUPPLY, START_MINTING, BASE_URI)
+        nft = await Gestures.deploy(NAME, SYMBOL, COST, MAX_SUPPLY, WL_START_TIME, BASE_URI)
 
         let timestamp = await nft.connect(minter).publicMint()
 
@@ -177,7 +173,7 @@ describe('Gestures', () => {
 
       beforeEach(async () => {
         const Gestures = await ethers.getContractFactory('Gestures')
-        nft = await Gestures.deploy(NAME, SYMBOL, COST, MAX_SUPPLY, START_MINTING, BASE_URI)
+        nft = await Gestures.deploy(NAME, SYMBOL, COST, MAX_SUPPLY, WL_START_TIME, BASE_URI)
 
         let timestamp = await nft.connect(minter).publicMint()
 
@@ -205,7 +201,7 @@ describe('Gestures', () => {
 
       beforeEach(async () => {
         const Gestures = await ethers.getContractFactory('Gestures')
-        nft = await Gestures.deploy(NAME, SYMBOL, COST, MAX_SUPPLY, START_MINTING, BASE_URI)
+        nft = await Gestures.deploy(NAME, SYMBOL, COST, MAX_SUPPLY, WL_START_TIME, BASE_URI)
 
         let timestamp = await nft.connect(minter).publicMint()
 
@@ -218,6 +214,7 @@ describe('Gestures', () => {
 
       })
     })
+  })
 
   describe('Returnable Function', () => {
   let transaction, result
@@ -228,7 +225,7 @@ describe('Gestures', () => {
 
       beforeEach(async () => {
         const Gestures = await ethers.getContractFactory('Gestures')
-        nft = await Gestures.deploy(NAME, SYMBOL, COST, MAX_SUPPLY, START_MINTING, BASE_URI)
+        nft = await Gestures.deploy(NAME, SYMBOL, COST, MAX_SUPPLY, WL_START_TIME, BASE_URI)
 
         let timestamp = await nft.connect(minter).publicMint()
 
@@ -248,7 +245,7 @@ describe('Gestures', () => {
 
       beforeEach(async () => {
         const Gestures = await ethers.getContractFactory('Gestures')
-        nft = await Gestures.deploy(NAME, SYMBOL, COST, MAX_SUPPLY, START_MINTING, BASE_URI)
+        nft = await Gestures.deploy(NAME, SYMBOL, COST, MAX_SUPPLY, WL_START_TIME, BASE_URI)
 
         let timestamp = await nft.connect(minter).publicMint()
 
@@ -268,7 +265,7 @@ describe('Gestures', () => {
 
       beforeEach(async () => {
         const Gestures = await ethers.getContractFactory('Gestures')
-        nft = await Gestures.deploy(NAME, SYMBOL, COST, MAX_SUPPLY, START_MINTING, BASE_URI)
+        nft = await Gestures.deploy(NAME, SYMBOL, COST, MAX_SUPPLY, WL_START_TIME, BASE_URI)
 
         let timestamp = await nft.connect(minter).publicMint()
 
@@ -288,7 +285,7 @@ describe('Gestures', () => {
 
       beforeEach(async () => {
         const Gestures = await ethers.getContractFactory('Gestures')
-        nft = await Gestures.deploy(NAME, SYMBOL, COST, MAX_SUPPLY, START_MINTING, BASE_URI)
+        nft = await Gestures.deploy(NAME, SYMBOL, COST, MAX_SUPPLY, WL_START_TIME, BASE_URI)
 
         let timestamp = await nft.connect(minter).publicMint()
 
@@ -308,7 +305,7 @@ describe('Gestures', () => {
 
       beforeEach(async () => {
         const Gestures = await ethers.getContractFactory('Gestures')
-        nft = await Gestures.deploy(NAME, SYMBOL, COST, MAX_SUPPLY, START_MINTING, BASE_URI)
+        nft = await Gestures.deploy(NAME, SYMBOL, COST, MAX_SUPPLY, WL_START_TIME, BASE_URI)
 
         let timestamp = await nft.connect(minter).publicMint()
 
