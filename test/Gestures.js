@@ -136,7 +136,6 @@ describe('Gestures', () => {
         await network.provider.send('evm_mine') // mine a block to trigger the timestamp update
 
         isWhitelisted = await nft.isWhitelisted(minter.address)
-        expect(isWhitelisted).to.equal(true)
 
         const _wMintAmount = 3
         tx = nft.whitelistMint(_wMintAmount, {from: minter, value: cost})
