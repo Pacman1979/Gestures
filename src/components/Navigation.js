@@ -14,7 +14,11 @@ const Navigation = ({ account }) => {
         height="40"
         className="d-inline-block align-top mx-3"
       />
-      <Navbar.Brand href="#"><strong>Gestures</strong></Navbar.Brand>
+
+      <div className='mx-auto'>
+        <h1 className='my-0 text-center'>Gestures</h1>
+      </div>
+
       <Navbar.Collapse className="justify-content-end">
         <Navbar.Text>
           { account ? account.toString().slice(0, 4) + "..." + account.toString().slice(-4) : "Refresh to connect Wallet" }

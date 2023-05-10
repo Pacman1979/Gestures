@@ -1,8 +1,7 @@
 import React from "react";
 import { ethers } from 'ethers' // for formatting the cost units.
-// do I need to import the 'Gestures.sol' for it to use all the Data arguments?
 
-const Data = ({ maxSupply, totalSupply, cost, balance }) => {
+const WData = ({ maxSupply, totalSupply, cost, balance }) => {
   return(
     <div className='text-center mt-5'>
       <p><strong>Available to Mint:</strong> {maxSupply - totalSupply}</p>
@@ -12,4 +11,4 @@ const Data = ({ maxSupply, totalSupply, cost, balance }) => {
   )
 }
 
-export default Data;
+export default WData;

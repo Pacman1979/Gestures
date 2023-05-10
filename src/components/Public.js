@@ -17,8 +17,8 @@ import preview from '../1Text100.png';
 
 // Components
 import Tabs from './Tabs';
-import Data from './Data';
-import Data1 from './Data1';
+import WData from './WData';
+import PData from './PData';
 import PublicMint from './PublicMint';
 import Loading from './Loading';
 import Refund from './Refund';
@@ -53,7 +53,7 @@ function Public() {
               setIsLoading={setIsLoading}
           />
 
-          <Data
+          <WData
             maxSupply={maxSupply}
             totalSupply={totalSupply}
             cost={cost}

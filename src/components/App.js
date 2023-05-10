@@ -1,37 +1,36 @@
-import React from "react";
+import React from "react"; //EXTRA???
 import { useEffect, useState } from 'react'
-import { useDispatch } from 'react-redux'
-import { HashRouter, Routes, Route } from 'react-router-dom'
 import { Container, Row, Col } from 'react-bootstrap'
+import Countdown from 'react-countdown'
 import { ethers } from 'ethers'
 
-import Card from 'react-bootstrap/Card';
-import Form from 'react-bootstrap/Form';
-import InputGroup from 'react-bootstrap/InputGroup';
-import Countdown from 'react-countdown'
-import Button from 'react-bootstrap/Button';
-import Bootstrap from 'bootstrap'
-
 // IMG
-import preview from '../1Text100.png';
+import preview from '../0.png'
 
 // Components
 import Navigation from './Navigation';
-import Tabs from './Tabs';
-import Data from './Data';
-import Data1 from './Data1';
+import WData from './WData';
+import PData from './PData';
+
+import Tabs from './Tabs';                // Do I need this??
+import Whitelisted from './Whitelisted';
 import WhitelistMint from './WhitelistMint';
 import PublicMint from './PublicMint';
+
 import Loading from './Loading';
-import Whitelisted from './Whitelisted';
-import Public from './Public';
-import Refund from './Refund';
 
 // ABIs: Import your contract ABIs here
 import NFT_ABI from '../abis/Gestures.json'
 
 // Config: Import your network config here
-import config from '../config.json';
+import config from '../config.json';        // IS THIS IN THE RIGHT PLACE?
+
+// DO I ACTUALLY NEED THE FOLLOWING???
+// import {
+//   loadProvider,
+//   loadNetwork,
+//   loadAccount
+// } from '../store/interactions'
 
 function App() {
   const [provider, setProvider] = useState(null)
@@ -39,14 +38,12 @@ function App() {
 
   const [account, setAccount] = useState(null)
 
+  const [isLoading, setIsLoading] = useState(false)
   const [revealTime, setRevealTime] = useState(0)
   const [maxSupply, setMaxSupply] = useState(0)
   const [totalSupply, setTotalSupply] = useState(0)
   const [cost, setCost] = useState(0)
   const [balance, setBalance] = useState(0)
-
-  const [isLoading, setIsLoading] = useState(true)
-  const [address, setAddress] = useState("")
 
   const loadBlockchainData = async () => {
     // Initiate provider
@@ -63,9 +60,9 @@ function App() {
     setAccount(account)
 
     // Fetch Countdown
-    const startMinting = await nft.startMinting()
+    const wlStartTime = await nft.wlStartTime()
     // JavaScript works in milliseconds so this converts to milliseconds...
-    setRevealTime(startMinting.toString() + '000')
+    setRevealTime(wlStartTime.toString() + '000')
 
     // Fetch maxSupply
     setMaxSupply(await nft.maxSupply())
@@ -79,31 +76,77 @@ function App() {
     // Fetch account balance
     setBalance(await nft.balanceOf(account))
 
-    setIsLoading(false)
+    setIsLoading(true)
   }
 
   useEffect(() => {
-    if (isLoading) {
+    if (!isLoading) {
       loadBlockchainData()
     }
   }, [isLoading]);
 
   return(
     <Container>
-      <HashRouter>
+      <Navigation account={account} />
 
-        <Navigation account={account} />
+      <hr />
 
-        <hr />
+      {isLoading ? (
+        <Loading />
+      ) : (
+        <>
+          <Row>
+            <Col>
+              <WhitelistMint />
 
-        <Tabs />
+              <div className='my-4 text-center'>
+                <Countdown date={Date.now() + 60000} className='h2' />
+              </div>
 
-        <Routes>
-          <Route exact path="/" element={<Whitelisted />} />
-          <Route path="/Public" element={<Public />} />
-          <Route path="/Refund" element={<Refund />} />
-        </Routes>
-      </HashRouter>
+              <WData
+                maxSupply={maxSupply}
+                totalSupply={totalSupply}
+                cost={cost}
+                balance={balance}
+              />
+
+              <Whitelisted />
+
+            </Col>
+
+            <Col>
+              <PublicMint />
+
+              <div className='my-4 text-center'>
+                <Countdown date={Date.now() + 28860000} className='h2' />
+              </div>
+
+              <PData
+                maxSupply={maxSupply}
+                totalSupply={totalSupply}
+                cost={cost}
+                balance={balance}
+              />
+
+            </Col>
+
+            <Col className="d-flex flex-column align-items-center">
+              <div className="align-self-end">
+                <img src={preview} alt="" width="300" height="300" />
+              </div>
+              <div className='my-4 text-center'>
+                <Countdown date={Date.now() + 7776060000} className='h5' />
+              </div>
+              <div className='my-4 text-center'>
+                <Countdown date={Date.now() + 8380860000} className='h5' />
+              </div>
+            </Col>
+
+
+
+          </Row>
+        </>
+      )}
     </Container>
   )
 }

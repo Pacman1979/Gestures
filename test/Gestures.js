@@ -104,6 +104,17 @@ describe('Gestures', () => {
         nft = await Gestures.deploy(NAME, SYMBOL, COST, MAX_SUPPLY, WL_START_TIME, BASE_URI)
 
       })
+      // it("allows whitelist minting because the mint is open.", async function () {
+
+      //   wMintAmount = 1
+      //   cost = await nft.cost()
+      //   tx = nft.whitelistMint(wMintAmount, {from: minter, value: cost})
+
+      //   await network.provider.send('evm_setNextBlockTimestamp', [currentTimestamp + 3601]) // time travel
+      //   await network.provider.send('evm_mine') // mine a block to trigger the timestamp update
+
+      //   await expect(tx)...
+
       // Success results included before each failure testing something after it.
 
       it("allows minting 1 or 2 NFTs.", async function () {
@@ -113,15 +124,35 @@ describe('Gestures', () => {
       let wMintAmount, cost, tx
       const WL_START_TIME = Date.now().toString().slice(0, 10) // Now
 
+      // Same test as below but using different code...
+      it("does not allow whitelist minting before the specified time", async function () {
+        cost = await nft.cost()
+        const block = await ethers.provider.getBlock('latest')
+        const currentTimestamp = block.timestamp
+
+        await network.provider.send('evm_setNextBlockTimestamp', [currentTimestamp + 3599]) // time travel
+        await network.provider.send('evm_mine') // mine a block to trigger the timestamp update
+
+        const errorMessage = "Whitelist Mint not open yet."
+        // expect the transaction to be reverted with the correct error message
+        await(expect(tx).to.be.reverted, errorMessage)
+        console.log(errorMessage)
+
+      })
+
+      // This code works but I'm not sure it's testing the right thing??
       it("does not allow whitelist minting before the specified time", async function () {
 
-        // try to mint a whitelisted NFT before the minting period is open
+        // try to mint a whitelisted NFT before the minting period is open...
+        // Does this code know when the minting period is and isn't open???
         wMintAmount = 1
         cost = await nft.cost()
         tx = nft.whitelistMint(wMintAmount, {from: minter, value: cost})
 
+        const errorMessage = "Whitelist Mint not open yet."
         // expect the transaction to be reverted with the correct error message
-        await(expect(tx).to.be.reverted, "Whitelist Mint not open yet.")
+        await(expect(tx).to.be.reverted, errorMessage)
+        console.log(errorMessage)
       })
     })
 
@@ -140,19 +171,40 @@ describe('Gestures', () => {
         const _wMintAmount = 3
         tx = nft.whitelistMint(_wMintAmount, {from: minter, value: cost})
 
+        const errorMessage = "Please enter 1 or 2."
         // expect the transaction to be reverted with the correct error message
-        await(expect(tx).to.be.reverted, "Please enter 1 or 2.")
-
-
+        await(expect(tx).to.be.reverted, errorMessage)
+        console.log(errorMessage)
       })
+
+      // it("reverts when cost != wMintAmount x cost.", async function () { //is this wording right? E.g. 0.2 eth != 3 x 0.1
+      //   // So cost = cost atm. wMintAmount can only be 1 or 2 so I'll use those but I'll use a different...
+      //   // ... number for the cost value.
+
+      //   wMintAmount = 1
+      //   cost = await nft.cost()
+      //   const invalidValue = cost * 5
+
+      //   await(expect(nft.whitelistMint(wMintAmount, {from: minter, value: invalidValue}))).to.be.revertedWith("Invalid value")
+
+
+      // })
+
+      // it("reverts when maxSupply is exceeded.", async function () { // e.g. when maxSupply is 1 and they mint 2.
+      //   // set the maxSupply as 1 and try to mint 2.
+
+      //   const MAX_SUPPLY = 1
+      //   const _wMintAmount = 2
+      //   cost = await nft.cost()
+
+      //   nft.whitelistMint(_wMintAmount, {from: minter, value: cost})
+
+      //   await expect(nft.whitelistMint(_wMintAmount, {from: minter, value: cost})).to.be.revertedWith("Exceeds MAX_SUPPLY")
+
+      // })
 
       it("reverts when whitelister tries to mint twice.", async function () {
-      })
 
-      it("reverts when cost != wMintAmount x cost.", async function () { //is this wording right? E.g. 0.2 eth != 3 x 0.1
-      })
-
-      it("reverts when maxSupply is exceeded.", async function () { // e.g. when maxSupply is 1 and they mint 2.
       })
     })
   })

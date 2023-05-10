@@ -17,8 +17,8 @@ import preview from '../1Text100.png';
 
 // Components
 import Tabs from './Tabs';
-import Data from './Data';
-import Data1 from './Data1';
+import WData from './WData';
+import PData from './PData';
 import WhitelistMint from './WhitelistMint';
 import Loading from './Loading';
 import Public from './Public';
@@ -79,76 +79,24 @@ function Whitelisted() {
   }
 
 	return (
-		// can put an image below as it'll be to the left hand side of the page.
-		<Card style={{ maxWidth: '450px' }} className='mx-auto px-auto my-4' >
-       <Row>
-        <Col>
-          <div className='my-0 text-center mt-1' >
-            <Countdown date={parseInt(revealTime)} className='h1' />
-          </div>
-          <WhitelistMint
-              provider={provider}
-              nft={nft}
-              cost={cost}
-              setIsLoading={setIsLoading}
+		<Card style={{ maxWidth: '350px' }} className='mx-auto px-auto my-1'>
+      <Button variant="primary" type="submit" style={{ width: '40%' }} className='mx-auto px-auto my-4'>
+        Whitelisted?
+      </Button>
+      <div style={{ maxWidth: '350px', margin: '50px auto' }} className='my-1 text-center mt-1'>
+        <InputGroup>
+          <Form.Control
+            type="text"
+            placeholder="0x..."
+            value={address}
+            onChange={(e) => setAddress(e.target.value)}
+            style={{ width: '300px' }}
           />
-
-          <Data
-            maxSupply={maxSupply}
-            totalSupply={totalSupply}
-            cost={cost}
-            balance={balance}
-          />
-
-          <Row>
-            <div style={{ maxWidth: '400px', margin: '50px auto' }} className='my-1 text-center mt-4' >
-            <InputGroup>
-              <Form.Control
-                type="text"
-                placeholder="0x..."
-                value={address}
-                onChange={(e) => setAddress(e.target.value)}
-              />
-            </InputGroup>
-            </div>
-          </Row>
-        </Col>
-      </Row>
+        </InputGroup>
+      </div>
     </Card>
+
 	)
 }
 
 export default Whitelisted;
-
-//       <Col xs={1}>
-//         <div>
-//           <img src={preview} alt="" />
-//           <img src={preview} alt="" className='my-1'/>
-//           <img src={preview} alt="" />
-//           <img src={preview} alt="" className='my-1'/>
-//         </div>
-//       </Col>
-
-//           </Row>
-
-//           <Row xs={1}>
-//             <div>
-//               <img src={preview} alt="" />
-//               <img src={preview} alt="" className='mx-1'/>
-//               <img src={preview} alt="" />
-//               <img src={preview} alt="" className='mx-1'/>
-//               <img src={preview} alt="" />
-//               <img src={preview} alt="" className='mx-1'/>
-//               <img src={preview} alt="" />
-//               <img src={preview} alt="" className='mx-1'/>
-//               <img src={preview} alt="" />
-//               <img src={preview} alt="" className='mx-1'/>
-//               <img src={preview} alt="" />
-//               <img src={preview} alt="" className='mx-1'/>
-//             </div>
-//           </Row>
-//         </>
-//       )}
-//     </Container>
-//   )
-// }
