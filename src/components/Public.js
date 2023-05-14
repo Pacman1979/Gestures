@@ -1,42 +1,46 @@
-import React from "react";
-import { useEffect, useState } from 'react'
-import { useDispatch } from 'react-redux'
-import { HashRouter, Routes, Route } from 'react-router-dom'
-import { Container, Row, Col } from 'react-bootstrap'
-import { ethers } from 'ethers'
-
-import Card from 'react-bootstrap/Card';
+import { useState } from 'react'
 import Form from 'react-bootstrap/Form';
-import InputGroup from 'react-bootstrap/InputGroup';
 import Countdown from 'react-countdown'
 import Button from 'react-bootstrap/Button';
 import Bootstrap from 'bootstrap'
-
-// IMG
-import preview from '../1Text100.png';
+import { Container, Row, Col } from 'react-bootstrap'
+import InputGroup from 'react-bootstrap/InputGroup';
 
 // Components
-import Tabs from './Tabs';
-import WData from './WData';
 import PData from './PData';
 import PublicMint from './PublicMint';
 import Loading from './Loading';
-import Refund from './Refund';
 
 // ABIs: Import your contract ABIs here
 import NFT_ABI from '../abis/Gestures.json'
 
-function Public() {
-	const [revealTime, setRevealTime] = useState(0)
-	const [provider, setProvider] = useState(null)
-	const [nft, setNFT] = useState(null)
-	const [isLoading, setIsLoading] = useState(true)
-  const [maxSupply, setMaxSupply] = useState(0)
-  const [totalSupply, setTotalSupply] = useState(0)
-  const [cost, setCost] = useState(0)
-  const [balance, setBalance] = useState(0)
-  const [address, setAddress] = useState("")
+// needs 'provider' for ethers because we're going to sign a contract...
+// needs to know about the 'nft' contract, the 'cost' of the mint and...
+// to be able to refresh the page (setIsLoading)
+const PublicMint = ({ provider, nft, cost, setIsLoading }) => {
+  const [isWaiting, setIsWaiting] = useState(false)
 
+  const mintHandler = async (e) => {
+    e.preventDefault()
+    setIsWaiting(true)
+
+    try {
+      let signer = await provider.getSigner()
+      const amount = +window.prompt('Enter the amount you wish to mint (1 or 2):')
+      if (amount !== 1 && amount !== 2) {
+        throw new Error('Invalid amount entered')
+
+      const transaction = await nft.connect(signer).publicMint(amount, { value: cost })
+
+      await transaction.wait()
+
+      }
+    } catch {
+      window.alert('User rejected or transaction reverted')
+    }
+
+    setIsLoading(true)
+  }
 
 	return (
 		// can put an image below as it'll be to the left hand side of the page.
@@ -53,7 +57,7 @@ function Public() {
               setIsLoading={setIsLoading}
           />
 
-          <WData
+          <PData
             maxSupply={maxSupply}
             totalSupply={totalSupply}
             cost={cost}
@@ -79,36 +83,3 @@ function Public() {
 }
 
 export default Public;
-
-//       <Col xs={1}>
-//         <div>
-//           <img src={preview} alt="" />
-//           <img src={preview} alt="" className='my-1'/>
-//           <img src={preview} alt="" />
-//           <img src={preview} alt="" className='my-1'/>
-//         </div>
-//       </Col>
-
-//           </Row>
-
-//           <Row xs={1}>
-//             <div>
-//               <img src={preview} alt="" />
-//               <img src={preview} alt="" className='mx-1'/>
-//               <img src={preview} alt="" />
-//               <img src={preview} alt="" className='mx-1'/>
-//               <img src={preview} alt="" />
-//               <img src={preview} alt="" className='mx-1'/>
-//               <img src={preview} alt="" />
-//               <img src={preview} alt="" className='mx-1'/>
-//               <img src={preview} alt="" />
-//               <img src={preview} alt="" className='mx-1'/>
-//               <img src={preview} alt="" />
-//               <img src={preview} alt="" className='mx-1'/>
-//             </div>
-//           </Row>
-//         </>
-//       )}
-//     </Container>
-//   )
-// }

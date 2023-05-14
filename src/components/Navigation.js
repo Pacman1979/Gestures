@@ -15,9 +15,9 @@ const Navigation = ({ account }) => {
         className="d-inline-block align-top mx-3"
       />
 
-      <div className='mx-auto'>
+      <Navbar.Text className='mx-auto justify-content-center' style={{ display: 'flex', justifyContent: 'center' }}>
         <h1 className='my-0 text-center'>Gestures</h1>
-      </div>
+      </Navbar.Text>
 
       <Navbar.Collapse className="justify-content-end">
         <Navbar.Text>

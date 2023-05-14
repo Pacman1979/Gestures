@@ -22,9 +22,9 @@
         "type": "uint16"
       },
       {
-        "internalType": "uint32",
-        "name": "_startMinting",
-        "type": "uint32"
+        "internalType": "uint256",
+        "name": "_wlStartTime",
+        "type": "uint256"
       },
       {
         "internalType": "string",
@@ -510,19 +510,6 @@
   },
   {
     "inputs": [],
-    "name": "startMinting",
-    "outputs": [
-      {
-        "internalType": "uint32",
-        "name": "",
-        "type": "uint32"
-      }
-    ],
-    "stateMutability": "view",
-    "type": "function"
-  },
-  {
-    "inputs": [],
     "name": "supply",
     "outputs": [
       {
@@ -751,6 +738,19 @@
     "name": "withdraw",
     "outputs": [],
     "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "inputs": [],
+    "name": "wlStartTime",
+    "outputs": [
+      {
+        "internalType": "uint256",
+        "name": "",
+        "type": "uint256"
+      }
+    ],
+    "stateMutability": "view",
     "type": "function"
   }
 ]

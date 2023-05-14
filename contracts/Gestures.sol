@@ -50,27 +50,27 @@ contract Gestures is ERC721Enumerable, Ownable {
         require(block.timestamp >= wlStartTime, "Whitelist Mint not open yet."); // got rid of the '+ 3600'
         require(whitelisted[msg.sender], "Wallet address is not Whitelisted.");
 		require(_wMintAmount == 1 || _wMintAmount == 2, "Please enter 1 or 2.");
-        require(msg.value == _wMintAmount * cost, "Please enter the exact cost of 1 or 2 NFTs.");
+        require(msg.value <= cost * 2 && msg.value > 0, "Please enter the exact cost of 1 or 2 NFTs.");
 
         supply = totalSupply();
 
-        require(maxSupply >= supply + _wMintAmount);
+        require(maxSupply >= supply + _wMintAmount); //IS THIS CAUSING ISSUES??
 
         for(uint16 i = 1; i <= _wMintAmount; i++) {
             _safeMint(msg.sender, supply + i);
         }
 
-    	whitelisted[msg.sender] = false;
+    	whitelisted[msg.sender] = false; // IS THIS CAUSING ISSUES??
 
         emit WhitelistMint(_wMintAmount, msg.sender);
     }
 
     function publicMint(uint16 _pMintAmount) public payable {
-        uint256 pStartTime = wlStartTime + 28800;
+        uint256 pStartTime = wlStartTime + 120;
 
         require(block.timestamp >= pStartTime, "Public Mint not open yet.");
-		require(_pMintAmount == 1 || _pMintAmount == 2, "Invalid mint amount");
-        require(msg.value <= cost * 2 && msg.value > 0, "Invalid Ether amount");
+		require(_pMintAmount == 1 || _pMintAmount == 2, "Please enter 1 or 2.");
+        require(msg.value <= cost * 2 && msg.value > 0, "Please enter the exact cost of 1 or 2 NFTs.");
 
         supply = totalSupply();
 
