@@ -53,7 +53,7 @@ const PublicMint = ({ provider, nft, cost, setIsLoading }) => {
         </Form.Group>
       )}
       <div className='my-4 text-center'>
-        <Countdown date={Date.now() + 120000} className='h2' />
+        <Countdown date={Date.now() + 10000} className='h2' />
       </div>
     </Form>
   )

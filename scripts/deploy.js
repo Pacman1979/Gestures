@@ -11,11 +11,11 @@ async function main() {
   const SYMBOL = 'G'
   const COST = ethers.utils.parseUnits('0.1', 'ether')
   const MAX_SUPPLY = 100
-  const NFT_MINT_DATE = (Date.now() + 60000).toString().slice(0, 10)
+  const NFT_MINT_DATE = (Date.now() + 10000).toString().slice(0, 10)
   const IPFS_METADATA_URI = 'ipfs://QmPk6cAtZ68tdeYEWSMfiznzDzuBXYXznZo4x5ArcbUJnp/' //THIS IS THE IMAGES URI!?!
 
   // Deploy NFT
-  const NFT = await hre.ethers.getContractFactory('Gestures') // Change to 'Gestures' from NFT_Test
+  const NFT = await hre.ethers.getContractFactory('Gestures')
   let nft = await NFT.deploy(NAME, SYMBOL, COST, MAX_SUPPLY, NFT_MINT_DATE, IPFS_METADATA_URI)
 
   await nft.deployed()

@@ -3,7 +3,6 @@ import { useState } from 'react'
 import Form from 'react-bootstrap/Form'
 import Button from 'react-bootstrap/Button'
 import Spinner from 'react-bootstrap/Spinner'
-import Countdown from 'react-countdown'
 import { ethers } from 'ethers'
 
 // needs 'provider' for ethers because we're going to sign a contract...
@@ -12,32 +11,27 @@ import { ethers } from 'ethers'
 const WhitelistMint = ({ provider, nft, cost, setIsLoading }) => {
   const [isWaiting, setIsWaiting] = useState(false)
   const [mintAmount, setMintAmount] = useState(2)
-  const [isWhitelisted, setIsWhitelisted] = useState(false)
-  const [account, setAccount] = useState(null)
 
   const mintHandler = async (e) => {
     e.preventDefault()
     setIsWaiting(true)
 
     try {
-      let signer = await provider.getSigner()
-      const address = signer.getAddress()
+      const signer = await provider.getSigner()
       const amount = parseInt(mintAmount)
-      const accounts = await window.ethereum.request({ method: 'eth_requestAccounts' })
-      const account = ethers.utils.getAddress(accounts[0])
-      setAccount(account)
 
-      const isWhitelisted = await nft.connect(address).isWhitelisted(address)
+      // set the address to be whitelisted as the known account[0]
+      const accountZero = '0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266'
+      // whitelist the account above
+      const updateWl = await nft.connect().updateWhitelist(accountZero, true)
+      await updateWl.wait()
 
-      if (address = account[0]) {
-        setIsWhitelisted(true)
-      }
-
-      const transaction = await nft.connect(accounts).whitelistMint(amount, { value: cost })
+      const transaction = await nft.connect(signer).whitelistMint(amount, { value: cost })
       await transaction.wait()
 
     } catch {
-      window.alert('User rejected or transaction reverted')
+       console.error(Error)
+       // window.alert('User rejected or transaction reverted')
     }
 
     setIsLoading(true)
@@ -62,9 +56,6 @@ const WhitelistMint = ({ provider, nft, cost, setIsLoading }) => {
 
         </Form.Group>
       )}
-      <div className='my-4 text-center'>
-        <Countdown date={Date.now() + 60000} className='h2' />
-      </div>
     </Form>
   )
 }

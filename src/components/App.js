@@ -38,6 +38,7 @@ function App() {
   const [totalSupply, setTotalSupply] = useState(0)
   const [cost, setCost] = useState(0)
   const [balance, setBalance] = useState(0)
+  const [mintAmount, setMintAmount] = useState(0)
 
   const [isLoading, setIsLoading] = useState(true)
 
@@ -93,12 +94,6 @@ function App() {
         <>
           <Row>
             <Col>
-              <WData
-                maxSupply={maxSupply}
-                totalSupply={totalSupply}
-                cost={cost}
-                balance={balance}
-              />
 
               <WhitelistMint
                 provider={provider}
@@ -107,8 +102,16 @@ function App() {
                 setIsLoading={setIsLoading}
               />
 
+              <div className='my-4 text-center'>
+                <Countdown date={Date.now() + 10000} className='h2' />
+              </div>
+
               <div className='mt-4 align-self-end mb-1'>
                 <Whitelisted />
+              </div>
+
+              <div className='mt-4 align-self-end mb-1'>
+              <UpdateWhitelist />
               </div>
 
             </Col>
@@ -127,10 +130,6 @@ function App() {
                 cost={cost}
                 balance={balance}
               />
-
-              <div className='mt-4 align-self-end mb-1'>
-              <UpdateWhitelist />
-              </div>
 
             </Col>
 

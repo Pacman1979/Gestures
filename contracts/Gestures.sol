@@ -60,13 +60,13 @@ contract Gestures is ERC721Enumerable, Ownable {
             _safeMint(msg.sender, supply + i);
         }
 
-    	whitelisted[msg.sender] = false; // IS THIS CAUSING ISSUES??
-
         emit WhitelistMint(_wMintAmount, msg.sender);
+
+        // whitelisted[msg.sender] = false; // IS THIS CAUSING ISSUES??
     }
 
     function publicMint(uint16 _pMintAmount) public payable {
-        uint256 pStartTime = wlStartTime + 120;
+        uint256 pStartTime = wlStartTime + 10;
 
         require(block.timestamp >= pStartTime, "Public Mint not open yet.");
 		require(_pMintAmount == 1 || _pMintAmount == 2, "Please enter 1 or 2.");
