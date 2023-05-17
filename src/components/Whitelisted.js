@@ -20,12 +20,14 @@ const Whitelisted = ({ provider, nft }) => {
       console.log(`${deployer}`)
       console.log(`${checkAddress}`)
 
-      nft.isWhitelisted()
+      // How can I set a value for a function in Solidity without starting a transaction?
+
       // check if the address that is entered into the form is whitelisted
       const areYouWhitelisted = await nft.isWhitelisted(checkAddress)
+
       console.log(`${areYouWhitelisted}`)
 
-      if (areYouWhitelisted === deployer) {
+      if (areYouWhitelisted === true) {
         window.alert("Address is whitelisted!")
       } else {
         window.alert("Sorry! You're not whitelisted.")
