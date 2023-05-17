@@ -25,7 +25,7 @@ const UpdateWhitelist = ({ provider, nft, cost, setIsLoading }) => {
       const signer = await provider.getSigner()
       const address = signer.getAddress()
 
-			const updateWl = await nft.connect(address).updateWhitelist(address, trueFalse, { value: address });
+			const updateWl = await nft.connect(signer).updateWhitelist([address], trueFalse, { value: address });
 			await updateWl.wait()
 
     } catch {

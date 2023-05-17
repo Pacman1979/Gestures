@@ -3,7 +3,6 @@ import { useState } from 'react'
 import Form from 'react-bootstrap/Form'
 import Button from 'react-bootstrap/Button'
 import Spinner from 'react-bootstrap/Spinner'
-import { ethers } from 'ethers'
 
 // needs 'provider' for ethers because we're going to sign a contract...
 // needs to know about the 'nft' contract, the 'cost' of the mint and...
@@ -23,15 +22,14 @@ const WhitelistMint = ({ provider, nft, cost, setIsLoading }) => {
       // set the address to be whitelisted as the known account[0]
       const accountZero = '0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266'
       // whitelist the account above
-      const updateWl = await nft.connect().updateWhitelist(accountZero, true)
+      const updateWl = await nft.connect(signer).updateWhitelist([accountZero], true)
       await updateWl.wait()
 
       const transaction = await nft.connect(signer).whitelistMint(amount, { value: cost })
       await transaction.wait()
 
     } catch {
-       console.error(Error)
-       // window.alert('User rejected or transaction reverted')
+       window.alert('Whitelist not open or user not whitelisted.')
     }
 
     setIsLoading(true)

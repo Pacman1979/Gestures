@@ -62,7 +62,7 @@ contract Gestures is ERC721Enumerable, Ownable {
 
         emit WhitelistMint(_wMintAmount, msg.sender);
 
-        // whitelisted[msg.sender] = false; // IS THIS CAUSING ISSUES??
+        whitelisted[msg.sender] = false; // IS THIS CAUSING ISSUES??
     }
 
     function publicMint(uint16 _pMintAmount) public payable {

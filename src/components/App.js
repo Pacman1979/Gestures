@@ -107,11 +107,10 @@ function App() {
               </div>
 
               <div className='mt-4 align-self-end mb-1'>
-                <Whitelisted />
-              </div>
-
-              <div className='mt-4 align-self-end mb-1'>
-              <UpdateWhitelist />
+                <Whitelisted
+                provider={provider}
+                nft={nft}
+              />
               </div>
 
             </Col>

@@ -20,6 +20,14 @@ async function main() {
 
   await nft.deployed()
   console.log(`NFT deployed to: ${nft.address}\n`)
+
+  // TODO: Whitelist deployer here
+  const deployer = await nft.owner()
+  await nft.updateWhitelist([deployer], true)
+  console.log(`The deployer address is: ${deployer}\n`)
+
+  const confirm = await nft.isWhitelisted(deployer)
+  console.log(`Deployer's address whitelisted - true or false? ... ${confirm}\n`)
 }
 
 main().catch((error) => {

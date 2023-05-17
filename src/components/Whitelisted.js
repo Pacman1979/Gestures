@@ -1,39 +1,63 @@
 import React from "react";
 import { useState } from 'react'
-import { ethers } from 'ethers'
+import Spinner from 'react-bootstrap/Spinner'
 
-import Countdown from 'react-countdown'
 import Button from 'react-bootstrap/Button';
-import Bootstrap from 'bootstrap'
 import Card from 'react-bootstrap/Card';
 import Form from 'react-bootstrap/Form';
-import InputGroup from 'react-bootstrap/InputGroup';
+import WhitelistedAddresses from './WhitelistedAddresses' // only here to use the deploy.js lines.
 
+const Whitelisted = ({ provider, nft }) => {
+  const [isWaiting, setIsWaiting] = useState(false)
+  const [checkAddress, setCheckAddress] = useState("")
 
-// Components
-import Loading from './Loading';
+  const mintHandler = async (e) => {
+    e.preventDefault()
+    setIsWaiting(true)
 
-const Whitelisted = ({ provider, nft, cost, setIsLoading }) => {
-  const [address, setAddress] = useState("")
+    try {
+      const deployer = await nft.owner()
+      console.log(`${deployer}`)
+      console.log(`${checkAddress}`)
 
+      nft.isWhitelisted()
+      // check if the address that is entered into the form is whitelisted
+      const areYouWhitelisted = await nft.isWhitelisted(checkAddress)
+      console.log(`${areYouWhitelisted}`)
+
+      if (areYouWhitelisted === deployer) {
+        window.alert("Address is whitelisted!")
+      } else {
+        window.alert("Sorry! You're not whitelisted.")
+      }
+
+    } catch (Error) {
+      console.error(Error)
+    }
+
+    setIsWaiting(false)
+  }
 
 	return (
-		<Card style={{ maxWidth: '350px' }} className='mx-auto px-auto my-1'>
-      <Button variant="primary" type="submit" style={{ width: '40%' }} className='mx-auto px-auto my-4'>
-        Whitelisted?
-      </Button>
-      <div style={{ maxWidth: '350px', margin: '50px auto' }} className='my-1 text-center mt-1'>
-        <InputGroup>
-          <Form.Control
+		<Form onSubmit={mintHandler} style={{ maxWidth: '350px', margin: '0px auto' }}>
+      {isWaiting ? (
+        <Spinner animation="border" style={{ display: 'block', margin: '0 auto' }} />
+      ) : (
+        <Form.Group>
+        <Card style={{ maxWidth: '350px' }} className='mx-auto px-auto my-1'>
+          <Button variant="primary" type="submit" style={{ width: '43%' }} className='mx-auto px-auto my-4' >
+            Whitelisted?
+          </Button>
+          <Form.Control className='my-1 text-left mt-1' style={{ maxWidth: '320px', margin: '50px auto' }}
             type="text"
             placeholder="0x..."
-            value={address}
-            onChange={(e) => setAddress(e.target.value)}
-            style={{ width: '300px' }}
+            value={checkAddress}
+            onChange={(e) => setCheckAddress(e.target.value)}
           />
-        </InputGroup>
-      </div>
-    </Card>
+        </Card>
+        </Form.Group>
+      )}
+    </Form>
 
 	)
 }
