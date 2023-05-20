@@ -1,5 +1,5 @@
-import React from "react";
-import { useState } from 'react';
+import React, { useState, useEffect } from "react";
+import { useLocalStorage } from 'react-use';
 import Form from 'react-bootstrap/Form';
 import Button from 'react-bootstrap/Button';
 import Spinner from 'react-bootstrap/Spinner';
@@ -11,6 +11,15 @@ import Countdown from 'react-countdown'
 const PublicMint = ({ provider, nft, cost, setIsLoading }) => {
   const [isWaiting, setIsWaiting] = useState(false)
   const [mintAmount, setMintAmount] = useState(2)
+  const [countdownTimestamp, setCountdownTimestamp] = useLocalStorage('countdownTimestamp', null);
+
+  useEffect(() => {
+    if (!countdownTimestamp) {
+      // Set the initial countdown timestamp if it doesn't exist in local storage
+      const timestamp = Date.now() + 30000
+      setCountdownTimestamp(timestamp)
+    }
+  }, [])
 
   const mintHandler = async (e) => {
     e.preventDefault()
@@ -18,12 +27,13 @@ const PublicMint = ({ provider, nft, cost, setIsLoading }) => {
 
     try {
       const signer = await provider.getSigner()
+
       const amount = parseInt(mintAmount)
 
       if (amount !== 1 && amount !== 2) {
         throw new Error('Invalid amount entered')
       }
-      const transaction = await nft.connect(signer).publicMint(amount, { value: cost })
+      const transaction = await nft.connect(signer).publicMint(amount, { value: (cost * mintAmount).toString() })
       await transaction.wait()
 
     } catch {
@@ -34,6 +44,8 @@ const PublicMint = ({ provider, nft, cost, setIsLoading }) => {
   }
 
   return(
+    <div className='my-1 text-center'>
+      {countdownTimestamp && (<Countdown date={countdownTimestamp} className='h2' />)}
     <Form onSubmit={mintHandler} style={{ maxWidth: '150px', margin: '0px auto' }}>
       {isWaiting ? (
         <Spinner animation="border" style={{ display: 'block', margin: '0 auto' }} />
@@ -52,10 +64,8 @@ const PublicMint = ({ provider, nft, cost, setIsLoading }) => {
 
         </Form.Group>
       )}
-      <div className='my-4 text-center'>
-        <Countdown date={Date.now() + 10000} className='h2' />
-      </div>
     </Form>
+    </div>
   )
 }
 

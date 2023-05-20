@@ -1,0 +1,9 @@
+@font-face {
+  font-family: 'Ginga';
+  src: url('../public/fonts/Ginga.ttf') format('truetype');
+}
+
+.ginga-font {
+  font-family: 'Ginga', cursive;
+  /* Apply any additional styles such as color, size, etc. */
+}

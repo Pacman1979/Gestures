@@ -29,6 +29,8 @@ import config from '../config.json'        // IS THIS IN THE RIGHT PLACE?
 function App() {
   const [provider, setProvider] = useState(null)
   const [nft, setNFT] = useState(null)
+  const [signer, setSigner] = useState(null)
+  const [deployer, setDeployer] = useState(null)
 
   const [account, setAccount] = useState(null)
 
@@ -39,6 +41,7 @@ function App() {
   const [cost, setCost] = useState(0)
   const [balance, setBalance] = useState(0)
   const [mintAmount, setMintAmount] = useState(0)
+  const [tokenIds, setTokenIds] = useState(null)
 
   const [isLoading, setIsLoading] = useState(true)
 
@@ -51,9 +54,17 @@ function App() {
     const nft = new ethers.Contract(config[31337].nft.address, NFT_ABI, provider)
     setNFT(nft)
 
+    // Initiate signer
+    const signer = await provider.getSigner()
+    setSigner(signer)
+
+    // Initiate deployer
+    const deployer = await nft.owner()
+    setDeployer(deployer)
+
     // Fetch accounts
     const accounts = await window.ethereum.request({ method: 'eth_requestAccounts' })
-    const account = ethers.utils.getAddress(accounts[0])
+    const account = ethers.utils.getAddress(deployer)
     setAccount(account)
 
     // Fetch Countdown
@@ -73,6 +84,15 @@ function App() {
     // Fetch account balance
     setBalance(await nft.balanceOf(account))
 
+    // Fetch token Ids
+    const tokenCount = await nft.balanceOf(account)
+    const tokenIds = []
+    for (let i = 0; i < tokenCount; i++) {
+      const tokenId = await nft.tokenOfOwnerByIndex(account, i)
+      tokenIds.push(tokenId.toString())
+    }
+    setTokenIds(tokenIds)
+
     setIsLoading(false)
   }
 
@@ -85,15 +105,16 @@ function App() {
   return(
     <Container>
       <Navigation account={account} />
-
-      <hr />
-
       {isLoading ? (
         <Loading />
       ) : (
         <>
           <Row>
             <Col>
+
+              <div className='my-1 text-center'>
+                <Countdown date={Date.now() + 10000} className='h2' />
+              </div>
 
               <WhitelistMint
                 provider={provider}
@@ -102,15 +123,26 @@ function App() {
                 setIsLoading={setIsLoading}
               />
 
-              <div className='my-4 text-center'>
-                <Countdown date={Date.now() + 10000} className='h2' />
-              </div>
-
-              <div className='mt-4 align-self-end mb-1'>
+              <div className='mt-4 align-self-end mb-4'>
                 <Whitelisted
                 provider={provider}
                 nft={nft}
               />
+              </div>
+
+              <div className="d-flex flex-column align-items-center">
+              {balance > 0 ? (
+                <div className='text-center'>
+                  <img
+                    src={`https://ipfs.io/ipfs/QmPk6cAtZ68tdeYEWSMfiznzDzuBXYXznZo4x5ArcbUJnp/${balance.toString()}.png`}
+                    alt="Gestures"
+                    width="200px"
+                    height="200px"
+                  />
+                </div>
+              ) : (
+                <img src={preview} alt="" width="200" height="200" />
+              )}
               </div>
 
             </Col>
@@ -128,25 +160,22 @@ function App() {
                 totalSupply={totalSupply}
                 cost={cost}
                 balance={balance}
+                tokenIds={tokenIds}
               />
 
             </Col>
 
-            <Col className="d-flex flex-column align-items-center">
-              {balance > 0 ? (
-                <div className='text-center'>
-                  <img
-                    src={`https://ipfs.io/ipfs/QmPk6cAtZ68tdeYEWSMfiznzDzuBXYXznZo4x5ArcbUJnp/${balance.toString()}.png`}
-                    alt="Gestures"
-                    width="300px"
-                    height="300px"
-                  />
-                </div>
-              ) : (
-                <img src={preview} alt="" width="300" height="300" />
-              )}
+            <Col>
 
-            <Refund />
+              <Refund
+                provider={provider}
+                nft={nft}
+                cost={cost}
+                setIsLoading={setIsLoading}
+                tokenIds={tokenIds}
+                signer={signer}
+                deployer={deployer}
+              />
 
             </Col>
           </Row>

@@ -5,7 +5,6 @@ import Spinner from 'react-bootstrap/Spinner'
 import Button from 'react-bootstrap/Button';
 import Card from 'react-bootstrap/Card';
 import Form from 'react-bootstrap/Form';
-import WhitelistedAddresses from './WhitelistedAddresses' // only here to use the deploy.js lines.
 
 const Whitelisted = ({ provider, nft }) => {
   const [isWaiting, setIsWaiting] = useState(false)
@@ -20,8 +19,6 @@ const Whitelisted = ({ provider, nft }) => {
       console.log(`${deployer}`)
       console.log(`${checkAddress}`)
 
-      // How can I set a value for a function in Solidity without starting a transaction?
-
       // check if the address that is entered into the form is whitelisted
       const areYouWhitelisted = await nft.isWhitelisted(checkAddress)
 
@@ -33,8 +30,8 @@ const Whitelisted = ({ provider, nft }) => {
         window.alert("Sorry! You're not whitelisted.")
       }
 
-    } catch (Error) {
-      console.error(Error)
+    } catch {
+      window.alert("Please enter a valid wallet address.")
     }
 
     setIsWaiting(false)

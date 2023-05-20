@@ -19,13 +19,15 @@ const WhitelistMint = ({ provider, nft, cost, setIsLoading }) => {
       const signer = await provider.getSigner()
       const amount = parseInt(mintAmount)
 
-      // set the address to be whitelisted as the known account[0]
-      const accountZero = '0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266'
-      // whitelist the account above
-      const updateWl = await nft.connect(signer).updateWhitelist([accountZero], true)
-      await updateWl.wait()
+      // Check if the accountZero address is already whitelisted
+      const isWhitelisted = await nft.isWhitelisted('0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266');
+      if (!isWhitelisted) {
+        window.alert('Account is not whitelisted.');
+        setIsWaiting(false);
+        return;
+      }
 
-      const transaction = await nft.connect(signer).whitelistMint(amount, { value: cost })
+      const transaction = await nft.connect(signer).whitelistMint(amount, { value: (cost * mintAmount).toString() })
       await transaction.wait()
 
     } catch {

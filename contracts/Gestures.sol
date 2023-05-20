@@ -66,7 +66,7 @@ contract Gestures is ERC721Enumerable, Ownable {
     }
 
     function publicMint(uint16 _pMintAmount) public payable {
-        uint256 pStartTime = wlStartTime + 10;
+        uint256 pStartTime = wlStartTime + 20;
 
         require(block.timestamp >= pStartTime, "Public Mint not open yet.");
 		require(_pMintAmount == 1 || _pMintAmount == 2, "Please enter 1 or 2.");
@@ -107,8 +107,8 @@ contract Gestures is ERC721Enumerable, Ownable {
     	public
     	returns (bool)
     {
-        uint256 rStartTime = wlStartTime + 7776000;
-        uint256 rEndTime = wlStartTime + 8382600;
+        uint256 rStartTime = wlStartTime;
+        uint256 rEndTime = wlStartTime + 12000;
 
 		require(block.timestamp >= rStartTime, "Refund not available yet.");
         require(block.timestamp <= rEndTime, "Refund period closed." );
@@ -118,7 +118,7 @@ contract Gestures is ERC721Enumerable, Ownable {
         returnNFT.approve(msg.sender, _tokenId);
         returnNFT.safeTransferFrom(msg.sender, address(this), _tokenId);
 
-        require(returnNFT.ownerOf(_tokenId) == address(this), "NFT not received");
+        require(returnNFT.ownerOf(_tokenId) == address(this), "NFT not received"); // TODO: IS THIS NEEDED?!
 
 		IERC20 etherBack = IERC20(msg.sender);
 	    etherBack.approve(msg.sender, cost); // COULD THERE BE AN ISSUE HERE?!?
