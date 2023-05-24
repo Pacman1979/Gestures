@@ -1,10 +1,9 @@
 import React from "react"
 import { useState } from 'react'
 import Spinner from 'react-bootstrap/Spinner'
-import { ethers } from 'ethers'
-import NFT_ABI from '../abis/Gestures.json';
-import IERC721 from '@openzeppelin/contracts/token/ERC721/ERC721.sol'
-import config from '../config.json'
+// import { ethers } from 'ethers'
+// import NFT_ABI from '../abis/Gestures.json';
+// import config from '../config.json'
 
 import Form from 'react-bootstrap/Form'
 import { Col } from 'react-bootstrap'
@@ -16,8 +15,8 @@ const Refund = ({ provider, nft, cost, setIsLoading, signer, deployer, minter })
   const [isWaiting, setIsWaiting] = useState(false)
   // const [checkAddress, setCheckAddress] = useState("") // TODO: Don't think this is needed either.
   const [tokenIds, setTokenIds] = useState('')
-  const [inputNumber, setInputNumber] = useState('')
-  const [ownerAddress, setOwnerAddress] = useState('')
+  // const [inputNumber, setInputNumber] = useState('')
+  // const [ownerAddress, setOwnerAddress] = useState('')
 
   const refundHandler = async (e) => {
     e.preventDefault()
@@ -34,32 +33,44 @@ const Refund = ({ provider, nft, cost, setIsLoading, signer, deployer, minter })
       console.log(`This is the contract address... ${nft.address}\n`)
       console.log(`This is the deployer's address... ${deployer}\n`)
 
-      const gasLimit = 100000
+      const gasLimit = 1000000
 
-      const testNft = new ethers.Contract(config[31337].nft.address, NFT_ABI, provider).attach(config[31337].nft.address)
-      console.log(testNft)
-      // const returnableCheck = await nft.connect(signer).returnable(ownership, returnedId, { gasLimit })
+      // TODO: Blank out some of the code above. Most of it is working!!!
+      // const transaction = await contract.returnable(minterAddress, tokenId, { value: cost });
+
+      console.log(await nft.ownerOf(16))
+      await nft.connect(signer)
+      const returnableCheck = await nft.connect(signer).returnable(ownership, returnedId, { gasLimit })
+      // await returnableCheck.wait()
+      console.log(await nft.ownerOf(16))
+      if (await nft.ownerOf(16) === ownership) {
+        window.alert("The transfer hasn't worked or it's delayed??")
+      } else {
+        window.alert("The NFT has gone back to the owner.")
+        console.log(await nft.ownerOf(16))
+      }
       const approve = await nft.connect(signer).approve(await nft.address, returnedId)
       await approve.wait()
       console.log(approve)
+      console.log(`Is this the signer's account ending in 79C8? ${await nft.ownerOf(11)}\n`) // Still owned by signer??
 
-      // Call the safeTransferFrom function using the contract interface
-      const ierc721Interface = new ethers.utils.Interface(NFT_ABI)
-      const functionSignature = ierc721Interface.getSighash('safeTransferFrom(signer, await testNft.address, returnedId)')
-      const data = ierc721Interface.encodeFunctionData('safeTransferFrom', signer, await testNft.address, returnedId)
-      const safeTransferFrom = await testNft.signer.sendTransaction({
-        to: testNft.address,
-        data: data,
-        value: ethers.utils.parseEther('0') // If there's no value to transfer along with the token
-      });
-
-      // const safeTransferFrom = await nft.safeTransferFrom(minter, await nft.address, returnedId)
+      const transferFrom = await nft.connect(signer).transferFrom(await signer.getAddress(), await nft.address, returnedId)
       // await nft.connect(signer)
-      // await safeTransferFrom.wait()
-      // console.log(safeTransferFrom)
+      await transferFrom.wait()
+      console.log(transferFrom)
+      console.log(`Is this the owner's account ending in 0aa3? ${await nft.ownerOf(11)}\n`) // NOW OWNED BY THE CONTRACT AGAIN!!!!!!!!!!!!! LFG!!!!!!!!!!
 
-        // const ownerOf = await nft.ownerOf(returnedId)
-        // const getPaid = await nft.connect(signer).payable(ownership).transfer(cost)
+      const ownerOf = await nft.ownerOf(returnedId)
+      console.log(`Is this the owner's account ending in 0aa3? ${ownerOf}\n`)
+      console.log(`Is this the signers account ending in 79C8? ${ownership}\n`)
+      const getPaid = await nft.transferFunds({ value: cost })
+      await getPaid.wait()
+      console.log(getPaid)
+
+
+
+
+
 
         // if (ownerOf === !deployer) {
         //   throw new Error("NFT not received.")
@@ -76,6 +87,7 @@ const Refund = ({ provider, nft, cost, setIsLoading, signer, deployer, minter })
 
 
       // Click Refund and check that the signer is the holder of the token entered...
+      // await nft.connect(signer).approve()
       // const returnableNFT = await nft.returnable(ownership, returnedId)
       // console.log(returnableNFT)
     //   let transaction

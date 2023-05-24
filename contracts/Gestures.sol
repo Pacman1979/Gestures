@@ -2,8 +2,6 @@
 pragma solidity ^0.8.0;
 
 import "./ERC721Enumerable.sol";
-import "./ERC721.sol"; // TODO: Do I need this? I added it to try to get access to the safeTransferFrom function.
-import "./IERC721Receiver.sol";
 import "./Ownable.sol";
 import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 
@@ -115,11 +113,10 @@ contract Gestures is ERC721Enumerable, Ownable {
 		require(block.timestamp >= rStartTime, "Refund not available yet.");
         require(block.timestamp <= rEndTime, "Refund period closed.");
 
-    	IERC721 returnNFT = IERC721(address(this));
-        require(returnNFT.ownerOf(_tokenId) == msg.sender, "Not the owner of the token");
-        returnNFT.safeTransferFrom(msg.sender, address(this), _tokenId);
+        require(ownerOf(_tokenId) == msg.sender, "Not the owner of the token");
+        transferFrom(msg.sender, address(this), _tokenId);
 
-        require(returnNFT.ownerOf(_tokenId) == address(this), "NFT not received"); // TODO: IS THIS NEEDED?!
+        require(ownerOf(_tokenId) == address(this), "NFT not received"); // TODO: IS THIS NEEDED?!
 
         payable(msg.sender).transfer(cost); // Send Ether back to the minter
 

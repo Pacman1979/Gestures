@@ -11,7 +11,7 @@ describe('Gestures', () => {
   const NAME = 'Gestures'
   const SYMBOL = 'G'
   const COST = ether(0.1)
-  const MAX_SUPPLY = 100
+  const MAX_SUPPLY = 99
   const BASE_URI = 'ipfs://QmPk6cAtZ68tdeYEWSMfiznzDzuBXYXznZo4x5ArcbUJnp/'
 
   let nft,
@@ -315,29 +315,46 @@ describe('Gestures', () => {
 //     })
 //   })
 
-//   describe('Returnable Function', () => {
-//   let transaction, result
+  describe('Returnable Function', () => {
+  let transaction, result, cost
 
-//     describe('Success', async () => {
+    describe('Success', async () => {
 
-//       const WL_START_TIME = Date.now().toString().slice(0, 10) // Now
+      const WL_START_TIME = Date.now().toString().slice(0, 10) // Now
 
-//       beforeEach(async () => {
-//         const Gestures = await ethers.getContractFactory('Gestures')
-//         nft = await Gestures.deploy(NAME, SYMBOL, COST, MAX_SUPPLY, WL_START_TIME, BASE_URI)
+      beforeEach(async () => {
+        const Gestures = await ethers.getContractFactory('Gestures')
+        nft = await Gestures.deploy(NAME, SYMBOL, COST, MAX_SUPPLY, WL_START_TIME, BASE_URI)
 
-//         let timestamp = await nft.connect(minter).publicMint()
+        cost = await nft.cost() // is this supposed to be 'COST'??
+        const block = await ethers.provider.getBlock('latest')
+        const currentTimestamp = block.timestamp
 
-//         transaction = await nft.connect(minter).publicMint(1, { value: COST })
-//         result = await transaction.wait()
+        await network.provider.send('evm_setNextBlockTimestamp', [currentTimestamp + 61]) // time travel
+        await network.provider.send('evm_mine') // mine a block to trigger the timestamp update
+        transaction = await nft.connect(minter).publicMint(1, { value: COST })
+        await transaction.wait()
+        console.log(transaction)
+      })
 
-//       })
+      it("checks who owns token 1", async function () {
+      //   const returnable = await nft.connect(minter).returnable(minter.address, 1)
+      //   expect(returnable).to.equal(true)
+        const NftOwner = await nft.ownerOf(1)
+        if (NftOwner === minter.address) {
+        console.log(`The minter's address is: ${NftOwner}\n`)
+        } else {
+          console.log("Wrong owner!")
+        }
+      })
 
-//       it("", async function () {
-
-//       })
-//     })
-
+      it("transfers the NFT back to the contract owner.", async function () {
+        const returnNft = await nft.connect(minter).transferFrom(minter.address, nft.address, 1)
+        await returnNft.wait()
+        console.log(returnNft)
+      })
+    })
+  })
 //     describe('Failure', async () => {
 
 //       const WL_START_TIME = Date.now().toString().slice(0, 10) // Now
