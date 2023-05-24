@@ -3,16 +3,13 @@ import { useEffect, useState } from 'react'
 import { Container, Row, Col } from 'react-bootstrap'
 import Countdown from 'react-countdown'
 import { ethers } from 'ethers'
-import Card from 'react-bootstrap/Card'
-import Button from 'react-bootstrap/Button'
 
 // IMG
 import preview from '../0.png'
 
 // Components
 import Navigation from './Navigation'
-import WData from './WData'
-import PData from './PData'
+import Data from './Data'
 import Whitelisted from './Whitelisted'
 import WhitelistMint from './WhitelistMint'
 import PublicMint from './PublicMint'
@@ -24,15 +21,18 @@ import UpdateWhitelist from './UpdateWhitelist'
 import NFT_ABI from '../abis/Gestures.json'
 
 // Config: Import your network config here
-import config from '../config.json'        // IS THIS IN THE RIGHT PLACE?
+import config from '../config.json'
 
 function App() {
   const [provider, setProvider] = useState(null)
   const [nft, setNFT] = useState(null)
-  const [signer, setSigner] = useState(null)
-  const [deployer, setDeployer] = useState(null)
 
   const [account, setAccount] = useState(null)
+  const [accounts, setAccounts] = useState(null)
+
+  const [deployer, setDeployer] = useState(null)
+  const [minter, setMinter] = useState(null)
+  const [signer, setSigner] = useState(null)
 
   const [revealTime, setRevealTime] = useState(0) // should I change this to WRevealTime, setWRevealTime??
   // do I need a PRevealTime, setPRevealTime and others for the countdown timers?
@@ -45,7 +45,27 @@ function App() {
 
   const [isLoading, setIsLoading] = useState(true)
 
-  const loadBlockchainData = async () => {
+  const loadBlockchainData = async () => { // TODO: Update here with the AMM settings (if applicable)...
+    // // Initiate provider
+    // const provider = await loadProvider(dispatch)
+
+    // // Fetch current network's chainId (e.g. hardhat: 31337, kovan: 42)
+    // const chainId = await loadNetwork(provider, dispatch)
+
+    // // Reload page when network changes
+    // window.ethereum.on('chainChanged', () => {
+    //   window.location.reload()
+    // })
+
+    // // Fetch current account from Metamask when changed
+    // window.ethereum.on('accountsChanged', async () => {
+    //   await loadAccount(dispatch)
+    // })
+
+    // // Connect to the Ethereum network - TODO: Do I need to make some changes below??
+    // const provider = new ethers.providers.Web3Provider(window.ethereum);
+    // await provider.send('eth_requestAccounts', []);
+
     // Initiate provider
     const provider = new ethers.providers.Web3Provider(window.ethereum)
     setProvider(provider)
@@ -58,14 +78,18 @@ function App() {
     const signer = await provider.getSigner()
     setSigner(signer)
 
+    // Fetch accounts
+    const accounts = await window.ethereum.request({ method: 'eth_requestAccounts' })
+    const account = ethers.utils.getAddress(accounts[0])
+    setAccount(account)
+
     // Initiate deployer
     const deployer = await nft.owner()
     setDeployer(deployer)
 
-    // Fetch accounts
-    const accounts = await window.ethereum.request({ method: 'eth_requestAccounts' })
-    const account = ethers.utils.getAddress(deployer)
-    setAccount(account)
+    // Initiate minter
+    const minter = '0x70997970C51812dc3A010C7d01b50e0d17dc79C8'
+    setMinter(minter)
 
     // Fetch Countdown
     const wlStartTime = await nft.wlStartTime()
@@ -100,11 +124,13 @@ function App() {
     if (isLoading) {
       loadBlockchainData()
     }
-  }, [isLoading]);
+  }, [isLoading])
 
   return(
     <Container>
+      {account && (
       <Navigation account={account} />
+      )}
       {isLoading ? (
         <Loading />
       ) : (
@@ -113,7 +139,7 @@ function App() {
             <Col>
 
               <div className='my-1 text-center'>
-                <Countdown date={Date.now() + 10000} className='h2' />
+                <Countdown date={Date.now() + 30000} className='h2' />
               </div>
 
               <WhitelistMint
@@ -121,12 +147,15 @@ function App() {
                 nft={nft}
                 cost={cost}
                 setIsLoading={setIsLoading}
+                signer={signer}
+                tokenIds={tokenIds}
               />
 
               <div className='mt-4 align-self-end mb-4'>
                 <Whitelisted
                 provider={provider}
                 nft={nft}
+                tokenIds={tokenIds}
               />
               </div>
 
@@ -153,9 +182,11 @@ function App() {
                 nft={nft}
                 cost={cost}
                 setIsLoading={setIsLoading}
+                signer={signer}
+                tokenIds={tokenIds}
               />
 
-              <PData
+              <Data
                 maxSupply={maxSupply}
                 totalSupply={totalSupply}
                 cost={cost}

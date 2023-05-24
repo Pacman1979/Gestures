@@ -8,7 +8,7 @@ import Countdown from 'react-countdown'
 // needs 'provider' for ethers because we're going to sign a contract...
 // needs to know about the 'nft' contract, the 'cost' of the mint and...
 // to be able to refresh the page (setIsLoading)
-const PublicMint = ({ provider, nft, cost, setIsLoading }) => {
+const PublicMint = ({ provider, nft, cost, setIsLoading, signer }) => {
   const [isWaiting, setIsWaiting] = useState(false)
   const [mintAmount, setMintAmount] = useState(2)
   const [countdownTimestamp, setCountdownTimestamp] = useLocalStorage('countdownTimestamp', null);
@@ -26,8 +26,6 @@ const PublicMint = ({ provider, nft, cost, setIsLoading }) => {
     setIsWaiting(true)
 
     try {
-      const signer = await provider.getSigner()
-
       const amount = parseInt(mintAmount)
 
       if (amount !== 1 && amount !== 2) {

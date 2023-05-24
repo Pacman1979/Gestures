@@ -1,7 +1,7 @@
 import React from "react";
 import { ethers } from 'ethers' // for formatting the cost units.
 
-const PData = ({ maxSupply, totalSupply, cost, balance, tokenIds }) => {
+const Data = ({ maxSupply, totalSupply, cost, balance, tokenIds }) => {
   return(
     <div className='text-center mt-5'>
       <p><strong>Available to Mint:</strong> {maxSupply - totalSupply}</p>
@@ -12,4 +12,4 @@ const PData = ({ maxSupply, totalSupply, cost, balance, tokenIds }) => {
   )
 }
 
-export default PData;
+export default Data;

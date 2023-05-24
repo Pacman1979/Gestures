@@ -2,6 +2,8 @@
 pragma solidity ^0.8.0;
 
 import "./ERC721Enumerable.sol";
+import "./ERC721.sol"; // TODO: Do I need this? I added it to try to get access to the safeTransferFrom function.
+import "./IERC721Receiver.sol";
 import "./Ownable.sol";
 import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 
@@ -54,7 +56,7 @@ contract Gestures is ERC721Enumerable, Ownable {
 
         supply = totalSupply();
 
-        require(maxSupply >= supply + _wMintAmount); //IS THIS CAUSING ISSUES??
+        require(maxSupply >= supply + _wMintAmount);
 
         for(uint16 i = 1; i <= _wMintAmount; i++) {
             _safeMint(msg.sender, supply + i);
@@ -62,11 +64,11 @@ contract Gestures is ERC721Enumerable, Ownable {
 
         emit WhitelistMint(_wMintAmount, msg.sender);
 
-        whitelisted[msg.sender] = false; // IS THIS CAUSING ISSUES??
+        whitelisted[msg.sender] = false;
     }
 
     function publicMint(uint16 _pMintAmount) public payable {
-        uint256 pStartTime = wlStartTime + 20;
+        uint256 pStartTime = wlStartTime + 60;
 
         require(block.timestamp >= pStartTime, "Public Mint not open yet.");
 		require(_pMintAmount == 1 || _pMintAmount == 2, "Please enter 1 or 2.");
@@ -108,21 +110,18 @@ contract Gestures is ERC721Enumerable, Ownable {
     	returns (bool)
     {
         uint256 rStartTime = wlStartTime;
-        uint256 rEndTime = wlStartTime + 12000;
+        uint256 rEndTime = wlStartTime + 12000; // 200 minutes.
 
 		require(block.timestamp >= rStartTime, "Refund not available yet.");
-        require(block.timestamp <= rEndTime, "Refund period closed." );
+        require(block.timestamp <= rEndTime, "Refund period closed.");
 
     	IERC721 returnNFT = IERC721(address(this));
-        require(returnNFT.ownerOf(_tokenId) == _buyer, "Not the owner of the token");
-        returnNFT.approve(msg.sender, _tokenId);
+        require(returnNFT.ownerOf(_tokenId) == msg.sender, "Not the owner of the token");
         returnNFT.safeTransferFrom(msg.sender, address(this), _tokenId);
 
         require(returnNFT.ownerOf(_tokenId) == address(this), "NFT not received"); // TODO: IS THIS NEEDED?!
 
-		IERC20 etherBack = IERC20(msg.sender);
-	    etherBack.approve(msg.sender, cost); // COULD THERE BE AN ISSUE HERE?!?
-	    etherBack.transferFrom(address(this), msg.sender, cost);
+        payable(msg.sender).transfer(cost); // Send Ether back to the minter
 
         return true;
 	}

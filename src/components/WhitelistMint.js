@@ -7,7 +7,7 @@ import Spinner from 'react-bootstrap/Spinner'
 // needs 'provider' for ethers because we're going to sign a contract...
 // needs to know about the 'nft' contract, the 'cost' of the mint and...
 // to be able to refresh the page (setIsLoading)
-const WhitelistMint = ({ provider, nft, cost, setIsLoading }) => {
+const WhitelistMint = ({ provider, nft, cost, setIsLoading, signer }) => {
   const [isWaiting, setIsWaiting] = useState(false)
   const [mintAmount, setMintAmount] = useState(2)
 
@@ -16,15 +16,14 @@ const WhitelistMint = ({ provider, nft, cost, setIsLoading }) => {
     setIsWaiting(true)
 
     try {
-      const signer = await provider.getSigner()
       const amount = parseInt(mintAmount)
 
-      // Check if the accountZero address is already whitelisted
-      const isWhitelisted = await nft.isWhitelisted('0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266');
+      // Check if the Minter address is already whitelisted
+      const isWhitelisted = await nft.isWhitelisted('0x70997970C51812dc3A010C7d01b50e0d17dc79C8')
       if (!isWhitelisted) {
-        window.alert('Account is not whitelisted.');
-        setIsWaiting(false);
-        return;
+        window.alert('Account is not whitelisted.')
+        setIsWaiting(false)
+        return
       }
 
       const transaction = await nft.connect(signer).whitelistMint(amount, { value: (cost * mintAmount).toString() })

@@ -6,7 +6,7 @@ import Button from 'react-bootstrap/Button';
 import Card from 'react-bootstrap/Card';
 import Form from 'react-bootstrap/Form';
 
-const Whitelisted = ({ provider, nft }) => {
+const Whitelisted = ({ provider, nft, tokenIds }) => {
   const [isWaiting, setIsWaiting] = useState(false)
   const [checkAddress, setCheckAddress] = useState("")
 
@@ -16,13 +16,9 @@ const Whitelisted = ({ provider, nft }) => {
 
     try {
       const deployer = await nft.owner()
-      console.log(`${deployer}`)
-      console.log(`${checkAddress}`)
 
       // check if the address that is entered into the form is whitelisted
       const areYouWhitelisted = await nft.isWhitelisted(checkAddress)
-
-      console.log(`${areYouWhitelisted}`)
 
       if (areYouWhitelisted === true) {
         window.alert("Address is whitelisted!")
