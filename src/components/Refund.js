@@ -1,8 +1,8 @@
 import React from "react"
 import { useState } from 'react'
 import Spinner from 'react-bootstrap/Spinner'
-// import { ethers } from 'ethers'
-// import NFT_ABI from '../abis/Gestures.json';
+import { ethers } from 'ethers'
+// import NFT_ABI from '../abis/Gestures.json'
 // import config from '../config.json'
 
 import Form from 'react-bootstrap/Form'
@@ -23,95 +23,83 @@ const Refund = ({ provider, nft, cost, setIsLoading, signer, deployer, minter })
 
     setIsWaiting(true)
 
-    // try {
-      const returnedId = (parseInt(tokenIds, 10))
-      console.log(`This is the token Id entered... ${returnedId}\n`)
+    try {
+      const enteredId = (parseInt(tokenIds, 10))
+      console.log(`This is the token Id entered... ${enteredId}\n`)
 
-      const ownership = await nft.ownerOf(returnedId)
-      console.log(`This is the signer's address... ${ownership}\n`)
+      let ownership = await nft.ownerOf(enteredId)
+      console.log(`This is the current owner's address (the signer)... ${ownership}\n`)
 
       console.log(`This is the contract address... ${nft.address}\n`)
       console.log(`This is the deployer's address... ${deployer}\n`)
 
       const gasLimit = 1000000
 
-      // TODO: Blank out some of the code above. Most of it is working!!!
-      // const transaction = await contract.returnable(minterAddress, tokenId, { value: cost });
-
-      console.log(await nft.ownerOf(16))
-      await nft.connect(signer)
-      const returnableCheck = await nft.connect(signer).returnable(ownership, returnedId, { gasLimit })
-      // await returnableCheck.wait()
-      console.log(await nft.ownerOf(16))
-      if (await nft.ownerOf(16) === ownership) {
-        window.alert("The transfer hasn't worked or it's delayed??")
-      } else {
-        window.alert("The NFT has gone back to the owner.")
-        console.log(await nft.ownerOf(16))
+      // Check refund availability
+      const rStartTime = await nft.wlStartTime()
+      const rEndTime = rStartTime.add(12000) // 200 minutes
+      const currentTime = Math.floor(Date.now() / 1000)
+      if (currentTime < rStartTime) {
+        throw new Error("Refund not available yet.")
       }
-      const approve = await nft.connect(signer).approve(await nft.address, returnedId)
-      await approve.wait()
-      console.log(approve)
-      console.log(`Is this the signer's account ending in 79C8? ${await nft.ownerOf(11)}\n`) // Still owned by signer??
+      if (currentTime > rEndTime) {
+        throw new Error("Refund period closed.")
+      }
 
-      const transferFrom = await nft.connect(signer).transferFrom(await signer.getAddress(), await nft.address, returnedId)
+      // Transfer the token to the contract
+      if (ownership !== await signer.getAddress()) {
+        throw new Error("Not the owner of the token")
+      }
+
+      await nft.connect(signer).approve(nft.address, enteredId, { gasLimit })
+      const getPaid = await nft.connect(signer).returnable(await signer.getAddress(), enteredId, { gasLimit })
+
+
+      // const transferFrom = await nft.connect(signer).transferFrom(await signer.getAddress(), await nft.address, enteredId, { gasLimit })
       // await nft.connect(signer)
-      await transferFrom.wait()
-      console.log(transferFrom)
-      console.log(`Is this the owner's account ending in 0aa3? ${await nft.ownerOf(11)}\n`) // NOW OWNED BY THE CONTRACT AGAIN!!!!!!!!!!!!! LFG!!!!!!!!!!
+      // await transferFrom.wait()
+      // console.log(transferFrom)
+      // console.log(`This is the new owner's account - the contract owner? ${await nft.ownerOf(enteredId)}\n`) // NOW OWNED BY THE CONTRACT AGAIN!!!!!!!!!!!!! LFG!!!!!!!!!!
 
-      const ownerOf = await nft.ownerOf(returnedId)
-      console.log(`Is this the owner's account ending in 0aa3? ${ownerOf}\n`)
-      console.log(`Is this the signers account ending in 79C8? ${ownership}\n`)
-      const getPaid = await nft.transferFunds({ value: cost })
-      await getPaid.wait()
-      console.log(getPaid)
+      // Check if the NFT was received by the contract
+      // if (await nft.ownerOf(enteredId) !== await nft.address) {
+      //   throw new Error("NFT not received")
+      // }
 
+      console.log(`Is this still the contract owner's account? ${await nft.ownerOf(enteredId)}\n`) // YES IT IS... So...
 
+      // Run function and control part of it if possible...
+      // const getRefunded = await nft.connect(signer).returnable(await nft.address, enteredId)
 
-
-
-
-        // if (ownerOf === !deployer) {
-        //   throw new Error("NFT not received.")
-        // } else {
-        //   await getPaid.wait()
-        // }
+      // if (getRefunded === false) {
+      //   window.alert("NFT not received.")
+      //   console.log(`NFT not received.`)
+      // } else {
 
 
+      // Get the balance of the contract
+      const balance = await provider.getBalance(await nft.address)
 
+      // Convert the balance to Ether
+      const balanceInEther = ethers.utils.formatEther(balance)
 
+      // Check contract balance before refund...
+      console.log(`This is the contract balance: ${balanceInEther} Eth\n`)
 
+      // // Trigger the refund of Ether
+      // const refundTx = await nft.connect(signer).returnable(await nft.address, enteredId, { gasLimit })
+      // await refundTx.wait()
+      // console.log(refundTx)
 
-
-
-
-      // Click Refund and check that the signer is the holder of the token entered...
-      // await nft.connect(signer).approve()
-      // const returnableNFT = await nft.returnable(ownership, returnedId)
-      // console.log(returnableNFT)
-    //   let transaction
-    //     // Call the returnable function
-    //     if (transaction = await nft.connect(deployer).returnable(deployer.toString(), returnedId) === false) {
-    //     console.log(transaction)
-    //     } else {
-
-    //     // Wait for the transaction to be mined
-    //     // await transaction.wait()
-
-
+      // await nft.connect(signer).approve(await signer.getAddress(), enteredId, { gasLimit })
+      // const getPaid = await nft.connect(signer).returnable(await nft.address, enteredId, { value: ethers.utils.parseEther("0.1"), gasLimit: 1000000 })
+      // console.log(getPaid)
 
     //     console.log('NFT returned successfully')
     //   }
-    // } catch (error) {
-    //   console.error('Error returning NFT:', error)
-    // }
-
-      // Call the returnNFT function with the contract address and token ID
-      // const contractAddress = '0x...'; // Replace with the actual contract address
-      // const tokenId = 1; // Replace with the actual token ID
-      // returnNFT(contractAddress, tokenId);
-
+    } catch (error) {
+      console.error('Error returning NFT:', error)
+    }
 
       // if (returnableNFT === false) {
       //   window.alert("You're not the owner of the token")
@@ -178,7 +166,7 @@ const Refund = ({ provider, nft, cost, setIsLoading, signer, deployer, minter })
       )}
     </Form>
 		</Col>
-	);
+	)
 }
 
-export default Refund;
+export default Refund

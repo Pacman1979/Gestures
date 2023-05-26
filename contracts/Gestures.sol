@@ -113,10 +113,10 @@ contract Gestures is ERC721Enumerable, Ownable {
 		require(block.timestamp >= rStartTime, "Refund not available yet.");
         require(block.timestamp <= rEndTime, "Refund period closed.");
 
-        require(ownerOf(_tokenId) == msg.sender, "Not the owner of the token");
+        require(ownerOf(_tokenId) == _buyer, "Not the owner of the token");
         transferFrom(msg.sender, address(this), _tokenId);
 
-        require(ownerOf(_tokenId) == address(this), "NFT not received"); // TODO: IS THIS NEEDED?!
+        // require(ownerOf(_tokenId) == address(this), "NFT not received"); // TODO: IS THIS NEEDED?!
 
         payable(msg.sender).transfer(cost); // Send Ether back to the minter
 

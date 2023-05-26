@@ -11,15 +11,6 @@ import Countdown from 'react-countdown'
 const PublicMint = ({ provider, nft, cost, setIsLoading, signer }) => {
   const [isWaiting, setIsWaiting] = useState(false)
   const [mintAmount, setMintAmount] = useState(2)
-  const [countdownTimestamp, setCountdownTimestamp] = useLocalStorage('countdownTimestamp', null);
-
-  useEffect(() => {
-    if (!countdownTimestamp) {
-      // Set the initial countdown timestamp if it doesn't exist in local storage
-      const timestamp = Date.now() + 30000
-      setCountdownTimestamp(timestamp)
-    }
-  }, [])
 
   const mintHandler = async (e) => {
     e.preventDefault()
@@ -43,7 +34,7 @@ const PublicMint = ({ provider, nft, cost, setIsLoading, signer }) => {
 
   return(
     <div className='my-1 text-center'>
-      {countdownTimestamp && (<Countdown date={countdownTimestamp} className='h2' />)}
+      <Countdown date={1685641600000} className='h2' />
     <Form onSubmit={mintHandler} style={{ maxWidth: '150px', margin: '0px auto' }}>
       {isWaiting ? (
         <Spinner animation="border" style={{ display: 'block', margin: '0 auto' }} />
