@@ -21,7 +21,7 @@ const Whitelisted = ({ provider, nft, tokenIds }) => {
       const areYouWhitelisted = await nft.isWhitelisted(checkAddress)
 
       if (areYouWhitelisted === true) {
-        window.alert("Address is whitelisted!")
+        window.alert("Congratulations!! The address is whitelisted!")
       } else {
         window.alert("Sorry! You're not whitelisted.")
       }

@@ -47,7 +47,7 @@ contract Gestures is ERC721Enumerable, Ownable {
     }
 
     function whitelistMint(uint16 _wMintAmount) public payable {
-        require(block.timestamp >= wlStartTime, "Whitelist Mint not open yet."); // got rid of the '+ 3600'
+        require(block.timestamp >= 1685342389, "Whitelist Mint not open yet."); // got rid of the '+ 3600'
         require(whitelisted[msg.sender], "Wallet address is not Whitelisted.");
 		require(_wMintAmount == 1 || _wMintAmount == 2, "Please enter 1 or 2.");
         require(msg.value <= cost * 2 && msg.value > 0, "Please enter the exact cost of 1 or 2 NFTs.");
@@ -107,8 +107,8 @@ contract Gestures is ERC721Enumerable, Ownable {
     	public
     	returns (bool)
     {
-        uint256 rStartTime = wlStartTime;
-        uint256 rEndTime = wlStartTime + 12000; // 200 minutes.
+        uint256 rStartTime = wlStartTime + 120; // 2 minutes in Refund.js
+        uint256 rEndTime = wlStartTime + 180;// 3 minutes.
 
 		require(block.timestamp >= rStartTime, "Refund not available yet.");
         require(block.timestamp <= rEndTime, "Refund period closed.");
@@ -116,7 +116,7 @@ contract Gestures is ERC721Enumerable, Ownable {
         require(ownerOf(_tokenId) == _buyer, "Not the owner of the token");
         transferFrom(msg.sender, address(this), _tokenId);
 
-        // require(ownerOf(_tokenId) == address(this), "NFT not received"); // TODO: IS THIS NEEDED?!
+        require(ownerOf(_tokenId) == address(this), "NFT not received"); // TODO: IS THIS NEEDED?!
 
         payable(msg.sender).transfer(cost); // Send Ether back to the minter
 

@@ -32,7 +32,7 @@ const WhitelistMint = ({ provider, nft, cost, setIsLoading, signer }) => {
     } catch {
        window.alert('Whitelist not open or user not whitelisted.')
     }
-
+    window.location.reload()
     setIsLoading(true)
   }
 

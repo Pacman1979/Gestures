@@ -28,13 +28,13 @@ const PublicMint = ({ provider, nft, cost, setIsLoading, signer }) => {
     } catch {
       window.alert('User rejected or transaction reverted')
     }
-
+    window.location.reload()
     setIsLoading(true)
   }
 
   return(
     <div className='my-1 text-center'>
-      <Countdown date={1685641600000} className='h2' />
+      <Countdown date={1685342509000} className='h2' />
     <Form onSubmit={mintHandler} style={{ maxWidth: '150px', margin: '0px auto' }}>
       {isWaiting ? (
         <Spinner animation="border" style={{ display: 'block', margin: '0 auto' }} />

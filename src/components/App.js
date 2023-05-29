@@ -1,5 +1,5 @@
 import React from "react"; //EXTRA???
-import { useEffect, useState } from 'react'
+import { useEffect, useState, useCallback } from 'react'
 import { Container, Row, Col } from 'react-bootstrap'
 import Countdown from 'react-countdown'
 import { ethers } from 'ethers'
@@ -45,6 +45,16 @@ function App() {
 
   const [isLoading, setIsLoading] = useState(true)
 
+  const handleAccountChange = () => {
+    window.location.reload();
+  };
+
+  useEffect(() => {
+    if (account) {
+      window.ethereum.on('accountsChanged', handleAccountChange);
+    }
+  }, [account])
+
   const loadBlockchainData = async () => { // TODO: Update here with the AMM settings (if applicable)...
     // // Initiate provider
     // const provider = await loadProvider(dispatch)
@@ -88,7 +98,7 @@ function App() {
     setDeployer(deployer)
 
     // Initiate minter
-    const minter = '0x70997970C51812dc3A010C7d01b50e0d17dc79C8'
+    const minter = '0x70997970C51812dc3A010C7d01b50e0d17dc79C8' // TODO: Can I make this: const minter = ethers.utils.getAddress(accounts[1])
     setMinter(minter)
 
     // Fetch Countdown
@@ -139,7 +149,7 @@ function App() {
             <Col>
 
               <div className='my-1 text-center'>
-                <Countdown date={1685541600000} className='h2' />
+                <Countdown date={1685342449000} className='h2' />
               </div>
 
               <WhitelistMint
