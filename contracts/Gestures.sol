@@ -13,7 +13,7 @@ contract Gestures is ERC721Enumerable, Ownable {
     string public baseExtension = ".json";
     uint256 public cost;
     uint16 public maxSupply;
-    uint256 public wlStartTime;
+    uint256 public wlStartTime = 1685506000; // change back to: uint256 public wlStartTime;
     uint256 public supply = 0;
 
     mapping(address => bool) public whitelisted;
@@ -47,7 +47,7 @@ contract Gestures is ERC721Enumerable, Ownable {
     }
 
     function whitelistMint(uint16 _wMintAmount) public payable {
-        require(block.timestamp >= 1685342389, "Whitelist Mint not open yet."); // got rid of the '+ 3600'
+        require(block.timestamp >= wlStartTime, "Whitelist Mint not open yet."); // got rid of the '+ 3600'
         require(whitelisted[msg.sender], "Wallet address is not Whitelisted.");
 		require(_wMintAmount == 1 || _wMintAmount == 2, "Please enter 1 or 2.");
         require(msg.value <= cost * 2 && msg.value > 0, "Please enter the exact cost of 1 or 2 NFTs.");

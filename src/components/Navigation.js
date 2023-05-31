@@ -1,6 +1,7 @@
 import React from "react";
 import Navbar from 'react-bootstrap/Navbar';
 import { ethers } from 'ethers'
+import Form from 'react-bootstrap/Form'
 
 import logo from '../[0].png'
 

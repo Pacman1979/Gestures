@@ -149,7 +149,7 @@ function App() {
             <Col>
 
               <div className='my-1 text-center'>
-                <Countdown date={1685342449000} className='h2' />
+                <Countdown date={1685506000000} className='h2' />
               </div>
 
               <WhitelistMint

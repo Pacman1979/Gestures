@@ -43,17 +43,24 @@ const Refund = ({ provider, nft, cost, setIsLoading, signer, deployer, minter })
       // Check refund availability
       const wlStartTime = await nft.wlStartTime()
       const rStartTime = wlStartTime.add(120)
-      console.log(rStartTime.toString())
+
       const rEndTime = wlStartTime.add(180) // 60 seconds after the refund opens.
       const currentTime = Math.floor(Date.now() / 1000)
-      console.log(rEndTime.toString())
 
 
-      if (currentTime > rEndTime) {
-        window.alert('Refund period closed.')
+      // fix this: message needed for trying to claim a refund on an unowned NFT...
+
+      if (ownership !== await signer.getAddress()) {
+        window.alert('Not the owner of the token.')
+        console.log(ownership)
         setIsWaiting(false)
         return
       }
+
+
+
+
+
 
       if (currentTime < rStartTime) {
         window.alert('Refund not available yet.')
@@ -61,9 +68,8 @@ const Refund = ({ provider, nft, cost, setIsLoading, signer, deployer, minter })
         return
       }
 
-      if (ownership !== await signer.getAddress()) {
-        window.alert('Not the owner of the token.')
-        console.log(ownership)
+      if (currentTime > rEndTime) {
+        window.alert('Refund period closed.')
         setIsWaiting(false)
         return
       }
@@ -92,7 +98,7 @@ const Refund = ({ provider, nft, cost, setIsLoading, signer, deployer, minter })
             <p><strong style={{ textDecoration: 'underline' }}>Refund period open in:</strong></p>
           </div>
           <div className='my-1 text-center'>
-            <Countdown date={1685342569000} className='h5' />
+            <Countdown date={1685506120000} className='h5' />
           </div>
           <Form.Control className='my-4 text-center mt-1' style={{ maxWidth: '150px', margin: '50px auto' }}
             type="number"
@@ -111,7 +117,7 @@ const Refund = ({ provider, nft, cost, setIsLoading, signer, deployer, minter })
           </div>
 
           <div className='my-1 text-center mb-4'>
-            <Countdown date={1685342629000} className='h5' />
+            <Countdown date={1685506180000} className='h5' />
           </div>
         </Card>
         </Form.Group>

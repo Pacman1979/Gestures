@@ -26,13 +26,26 @@ const WhitelistMint = ({ provider, nft, cost, setIsLoading, signer }) => {
         return
       }
 
-      const transaction = await nft.connect(signer).whitelistMint(amount, { value: (cost * mintAmount).toString() })
-      await transaction.wait()
+      // set up the time restrictions...
+      const wlStartTime = await nft.wlStartTime()
+
+      const currentTime = Math.floor(Date.now() / 1000)
+
+      if (currentTime < wlStartTime) {
+        window.alert('Whitelist Mint still closed.')
+        console.log(wlStartTime.toString())
+        console.log(currentTime)
+        setIsWaiting(false)
+        return
+      } else {
+        const transaction = await nft.connect(signer).whitelistMint(amount, { value: (cost * mintAmount).toString() })
+        await transaction.wait()
+      }
 
     } catch {
-       window.alert('Whitelist not open or user not whitelisted.')
+        window.alert('Minting rejected by user.')
     }
-    window.location.reload()
+    // window.location.reload()
     setIsLoading(true)
   }
 

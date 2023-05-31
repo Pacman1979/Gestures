@@ -1,8 +1,8 @@
-import React, { useState, useEffect } from "react";
-import { useLocalStorage } from 'react-use';
-import Form from 'react-bootstrap/Form';
-import Button from 'react-bootstrap/Button';
-import Spinner from 'react-bootstrap/Spinner';
+import React, { useState, useEffect } from "react"
+import { useLocalStorage } from 'react-use'
+import Form from 'react-bootstrap/Form'
+import Button from 'react-bootstrap/Button'
+import Spinner from 'react-bootstrap/Spinner'
 import Countdown from 'react-countdown'
 
 // needs 'provider' for ethers because we're going to sign a contract...
@@ -22,8 +22,23 @@ const PublicMint = ({ provider, nft, cost, setIsLoading, signer }) => {
       if (amount !== 1 && amount !== 2) {
         throw new Error('Invalid amount entered')
       }
-      const transaction = await nft.connect(signer).publicMint(amount, { value: (cost * mintAmount).toString() })
-      await transaction.wait()
+
+      // set up the time restrictions...
+      const wlStartTime = await nft.wlStartTime()
+      const publicStartTime = wlStartTime.add(60)
+
+      const currentTime = Math.floor(Date.now() / 1000)
+
+      if (currentTime < publicStartTime) {
+        window.alert('Public Mint still closed.')
+        console.log(publicStartTime.toString())
+        console.log(currentTime)
+        // setIsWaiting(false)
+        // return
+      } else {
+        const transaction = await nft.connect(signer).publicMint(amount, { value: (cost * mintAmount).toString() })
+        await transaction.wait()
+      }
 
     } catch {
       window.alert('User rejected or transaction reverted')
@@ -34,7 +49,7 @@ const PublicMint = ({ provider, nft, cost, setIsLoading, signer }) => {
 
   return(
     <div className='my-1 text-center'>
-      <Countdown date={1685342509000} className='h2' />
+      <Countdown date={1685506060000} className='h2' />
     <Form onSubmit={mintHandler} style={{ maxWidth: '150px', margin: '0px auto' }}>
       {isWaiting ? (
         <Spinner animation="border" style={{ display: 'block', margin: '0 auto' }} />
