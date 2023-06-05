@@ -49,7 +49,7 @@ const PublicMint = ({ provider, nft, cost, setIsLoading, signer }) => {
 
   return(
     <div className='my-1 text-center'>
-      <Countdown date={1685506060000} className='h2' />
+      <Countdown date={1686020400000} className='h2' />
     <Form onSubmit={mintHandler} style={{ maxWidth: '150px', margin: '0px auto' }}>
       {isWaiting ? (
         <Spinner animation="border" style={{ display: 'block', margin: '0 auto' }} />
