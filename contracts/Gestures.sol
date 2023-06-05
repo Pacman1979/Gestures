@@ -66,7 +66,7 @@ contract Gestures is ERC721Enumerable, Ownable {
     }
 
     function publicMint(uint16 _pMintAmount) public payable {
-        uint256 pStartTime = wlStartTime + 60;
+        uint256 pStartTime = wlStartTime + 3600; // 1 hour after whitelist mint
 
         require(block.timestamp >= pStartTime, "Public Mint not open yet.");
 		require(_pMintAmount == 1 || _pMintAmount == 2, "Please enter 1 or 2.");
@@ -107,8 +107,8 @@ contract Gestures is ERC721Enumerable, Ownable {
     	public
     	returns (bool)
     {
-        uint256 rStartTime = wlStartTime + 120; // 2 hours after Whitelist Mint starts
-        uint256 rEndTime = wlStartTime + 180;// 97 days after Whitelist Mint starts.
+        uint256 rStartTime = wlStartTime + 7200; // 2 hours after Whitelist Mint starts
+        uint256 rEndTime = wlStartTime + 612000;// 2 hours + 7 days after Whitelist Mint starts.
 
 		require(block.timestamp >= rStartTime, "Refund not available yet.");
         require(block.timestamp <= rEndTime, "Refund period closed.");
