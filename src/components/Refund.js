@@ -44,7 +44,7 @@ const Refund = ({ provider, nft, cost, setIsLoading, signer, deployer, minter })
       const wlStartTime = await nft.wlStartTime()
       const rStartTime = wlStartTime.add(120)
 
-      const rEndTime = wlStartTime.add(180) // 60 seconds after the refund opens.
+      const rEndTime = wlStartTime.add(612000)
       const currentTime = Math.floor(Date.now() / 1000)
 
 
