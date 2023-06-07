@@ -12,7 +12,7 @@ async function main() {
   const COST = ethers.utils.parseUnits('0.1', 'ether')
   const MAX_SUPPLY = 99
   const NFT_MINT_DATE = (1686016800000).toString().slice(0, 10)
-  const IPFS_METADATA_URI = 'ipfs://QmPk6cAtZ68tdeYEWSMfiznzDzuBXYXznZo4x5ArcbUJnp/' //THIS IS THE IMAGES URI!?!
+  const IPFS_METADATA_URI = 'ipfs://QmPk6cAtZ68tdeYEWSMfiznzDzuBXYXznZo4x5ArcbUJnp/'
 
   // Deploy NFT
   const NFT = await hre.ethers.getContractFactory('Gestures')

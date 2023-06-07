@@ -81,7 +81,7 @@ function App() {
     setProvider(provider)
 
     // Initiate contract
-    const nft = new ethers.Contract(config[31337].nft.address, NFT_ABI, provider)
+    const nft = new ethers.Contract(config[11155111].nft.address, NFT_ABI, provider)
     setNFT(nft)
 
     // Initiate signer
