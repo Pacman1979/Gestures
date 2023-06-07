@@ -44,7 +44,7 @@ const Refund = ({ provider, nft, cost, setIsLoading, signer, deployer, minter })
       const wlStartTime = await nft.wlStartTime()
       const rStartTime = wlStartTime.add(7200)
 
-      const rEndTime = wlStartTime.add(612000)
+      const rEndTime = wlStartTime.add(8380800)
       const currentTime = Math.floor(Date.now() / 1000)
 
 
@@ -98,7 +98,7 @@ const Refund = ({ provider, nft, cost, setIsLoading, signer, deployer, minter })
             <p><strong style={{ textDecoration: 'underline' }}>Refund period open in:</strong></p>
           </div>
           <div className='my-1 text-center'>
-            <Countdown date={1686111723000} className='h5' />
+            <Countdown date={1686118126000} className='h5' />
           </div>
           <Form.Control className='my-4 text-center mt-1' style={{ maxWidth: '150px', margin: '50px auto' }}
             type="number"
@@ -117,7 +117,7 @@ const Refund = ({ provider, nft, cost, setIsLoading, signer, deployer, minter })
           </div>
 
           <div className='my-1 text-center mb-4'>
-            <Countdown date={1686716523000} className='h5' />
+            <Countdown date={1694491726000} className='h5' />
           </div>
         </Card>
         </Form.Group>

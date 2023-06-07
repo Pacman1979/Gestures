@@ -11,7 +11,7 @@ async function main() {
   const SYMBOL = 'G'
   const COST = ethers.utils.parseUnits('0.1', 'ether')
   const MAX_SUPPLY = 99
-  const NFT_MINT_DATE = (1686104523000).toString().slice(0, 10)
+  const NFT_MINT_DATE = (1686110926000).toString().slice(0, 10)
   const IPFS_METADATA_URI = 'ipfs://QmPk6cAtZ68tdeYEWSMfiznzDzuBXYXznZo4x5ArcbUJnp/'
 
   // Deploy NFT

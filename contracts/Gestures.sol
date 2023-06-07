@@ -13,7 +13,7 @@ contract Gestures is ERC721Enumerable, Ownable {
     string public baseExtension = ".json";
     uint256 public cost;
     uint16 public maxSupply;
-    uint256 public wlStartTime = 1686104523;
+    uint256 public wlStartTime = 1686110926;
     uint256 public supply = 0;
 
     mapping(address => bool) public whitelisted;
@@ -108,7 +108,7 @@ contract Gestures is ERC721Enumerable, Ownable {
     	returns (bool)
     {
         uint256 rStartTime = wlStartTime + 7200; // 2 hours after Whitelist Mint starts
-        uint256 rEndTime = wlStartTime + 612000;// 2 hours + 7 days after Whitelist Mint starts.
+        uint256 rEndTime = wlStartTime + 8380800; // 97 days after Whitelist Mint starts.
 
 		require(block.timestamp >= rStartTime, "Refund not available yet.");
         require(block.timestamp <= rEndTime, "Refund period closed.");
@@ -127,7 +127,7 @@ contract Gestures is ERC721Enumerable, Ownable {
     	public
     	onlyOwner
     {
-        uint256 wStartTime = wlStartTime + 8384400;
+        uint256 wStartTime = wlStartTime + 8384400; // An hour after Refund closes.
     	require(block.timestamp > wStartTime, "Contract Owner funds not available.");
         uint256 balance = address(this).balance;
 
