@@ -13,7 +13,7 @@ contract Gestures is ERC721Enumerable, Ownable {
     string public baseExtension = ".json";
     uint256 public cost;
     uint16 public maxSupply;
-    uint256 public wlStartTime = 1686016800;
+    uint256 public wlStartTime = 1686104523;
     uint256 public supply = 0;
 
     mapping(address => bool) public whitelisted;

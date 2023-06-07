@@ -62,10 +62,10 @@ function App() {
     // // Fetch current network's chainId (e.g. hardhat: 31337, kovan: 42)
     // const chainId = await loadNetwork(provider, dispatch)
 
-    // // Reload page when network changes
-    // window.ethereum.on('chainChanged', () => {
-    //   window.location.reload()
-    // })
+    // Reload page when network changes
+    window.ethereum.on('chainChanged', () => {
+      window.location.reload()
+    })
 
     // // Fetch current account from Metamask when changed
     // window.ethereum.on('accountsChanged', async () => {
@@ -149,7 +149,7 @@ function App() {
             <Col>
 
               <div className='my-1 text-center'>
-                <Countdown date={1686016800000} className='h2' />
+                <Countdown date={1686104523000} className='h2' />
               </div>
 
               <WhitelistMint
