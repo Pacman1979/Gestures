@@ -45,8 +45,8 @@
     ]
   },
   "devDependencies": {
-    "@nomicfoundation/hardhat-toolbox": "^6.1.0",
-    "hardhat": "^2.10.1"
+    "@nomicfoundation/hardhat-toolbox": "^7.0.0",
+    "hardhat": "^3.1.10"
   },
   "description": "Gestures NFT Collection",
   "main": "config-overrides.js",
